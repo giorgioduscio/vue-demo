@@ -1,0 +1,127 @@
+html, body {
+  --c1: #333;  
+  --c2: #666;  
+  --c3: #888;  
+  --c4: #ccc;  
+  --c5: #aaa;  
+  --st: #00000050;
+
+  /* modifica colori bootstrap */
+  --primary: #6078ff;
+  --success: #24a14e;
+  --danger: #d72f2f;
+  --warn: #fbbd50;
+  --info: #a8cfff;
+
+  margin: 0;
+  min-height: 100vh;
+  background: var(--c1) !important;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: var(--c5);
+}
+
+* {
+  box-sizing: border-box;
+  transition: 0.3s;
+  outline: none;
+  color: inherit;
+}
+
+/* INPUT */
+label {
+  font-style: italic;
+}
+
+.form-control, .form-select {
+  background: transparent !important;
+  color: white !important;
+  appearance: auto !important;
+  resize: none !important;
+}
+
+input.form-control:focus {
+  background: transparent;
+  color: white;
+}
+
+*::placeholder {
+  color: inherit !important;
+}
+
+/* MODIFICA CLASSI BOOTSTRAP */
+a {
+  text-underline-offset: 5px;
+  font-style: italic;
+}
+
+.form-control::placeholder {
+  color: #ffffff80 !important;
+}
+
+.bi {
+  color: inherit !important;
+}
+
+/* PSEUDO BOOTSTRAP */
+.flex-1 {
+  flex: 1;
+}
+
+.flex-auto {
+  flex: auto;
+}
+
+.bg-transparent {
+  background: transparent;
+}
+
+/* font size  */
+.fs-7 {
+  font-size: 0.8rem;
+}
+
+.fs-8 {
+  font-size: 0.6rem;
+}
+
+.fs-9 {
+  font-size: 0.4rem;
+}
+
+.fs-10 {
+  font-size: 0.2rem;
+}
+
+.border {
+  border-color: inherit !important;
+}
+
+.text-bg-st {
+  background-color: var(--st) !important;
+  color: #fff !important;
+}
+
+.text-bg-c1 {
+  background-color: var(--c1) !important;
+  color: #fff !important;
+}
+
+.text-bg-c2 {
+  background-color: var(--c2) !important;
+  color: #fff !important;
+}
+
+.text-bg-c3 {
+  background-color: var(--c3) !important;
+  color: #000 !important;
+}
+
+.text-bg-c4 {
+  background-color: var(--c4) !important;
+  color: #fff !important;
+}
+
+.text-bg-c5 {
+  background-color: var(--c5) !important;
+  color: #000 !important;
+}

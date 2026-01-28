@@ -182,9 +182,7 @@ const app = reactive({
   },
 });
 
-const filteredUsers = computed(() => {
-  return app.users_get();
-});
+
 
 const Form = reactive({
   isRendered: false,
@@ -334,24 +332,32 @@ const Form = reactive({
 
 // Inizializza il form
 Form.init();
+
+const filteredUsers = computed<User[]>(() => {
+  return app.users_get();
+});
 </script>
 
 <template> <article class="container">
   <!-- FORM -->
-  <form class="shadow p-2 p-md-5 border rounded" 
+  <form class="mt-2 p-2 p-md-5 border rounded text-bg-dark" 
         v-if="Form.isRendered" 
-        @submit="Form.onsubmit($event)">
-    <h2 class="d-flex justify-content-between">
+        @submit="Form.onsubmit($event)" 
+        aria-labelledby="form-title">
+    <!-- TITOLO -->
+    <h2 id="form-title" class="my-3 d-flex justify-content-between">
       <span>Inserisci utente</span>
-      <button class="btn bi bi-x-lg" @click="Form.reset()"></button>
+      <button type="button" class="btn bi bi-x-lg" @click="Form.reset()" aria-label="Chiudi form"></button>
     </h2>
-    <div class="small">I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori</div>
+    <!-- MESSAGGIO -->
+    <div class="alert alert-info" aria-live="polite">I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori</div>
     
-    <div class="d-flex flex-wrap gap-2">
-      <div v-for="field in Form.value" class="min-w-200px max-w-300px" style="flex: auto;">
-        <label :for="field.key">
+    <div class="row">
+      <div v-for="field in Form.value" class="col-12 col-md-6 col-lg-4">
+        <label :for="field.key" class="mb-2">
           <span>{{ field.label }}</span>
-          <span v-if="field.asterisk" class="mx-1 text-danger">*</span>
+          <span v-if="field.asterisk" class="mx-1 text-danger" aria-hidden="true">*</span>
+          <span v-if="field.asterisk" class="sr-only">(obbligatorio)</span>
         </label>
 
         <!-- SELECT -->
@@ -389,39 +395,57 @@ Form.init();
                 @input="Form.onchange($event)">
 
         <small v-if="Form.submittedOnce && !Form.isvalid(field.key)" 
-              class="text-danger">{{ field.errorMessage || 'Campo non valido' }}</small>
+              class="text-danger" 
+              role="alert"
+              aria-live="assertive"
+              >{{ field.errorMessage || 'Campo non valido' }}</small>
       </div>
     </div>
 
     <div class="d-flex gap-2 mt-3">
-      <button :disabled="Form.submittedOnce && !Form.isvalid()" class="btn btn-primary" type="submit">Aggiungi</button>
-      <button @click="Form.reset()" class="btn btn-secondary" type="button">Annulla</button>
+      <button :disabled="Form.submittedOnce && !Form.isvalid()" 
+              class="btn btn-primary" 
+              type="submit" 
+              aria-label="Aggiungi utente"
+              >Aggiungi</button>
+      <button @click="Form.reset()" 
+              class="btn btn-dark" 
+              type="button" 
+              aria-label="Annulla e chiudi form"
+              >Annulla</button>
     </div>
   </form>
 
   <!-- TABELLA -->
   <header v-if="!Form.isRendered">
-    <h1>{{ app.title }}</h1>
-    <div class="d-flex gap-2 align-items-center justify-content-between">
+    <h1 class="text-light my-2">{{ app.title }}</h1>
+    <div class="m-2 d-flex gap-2 align-items-center justify-content-between">
       <div>
-        <button @click="Form.isRendered = true; Form.init()" 
+        <button @click="Form.isRendered = true" 
                 class="btn btn-primary"
+                aria-label="Aggiungi nuovo utente"
                 >Aggiungi utente</button>
       </div>
   
       <div>
-        <label for="filter"> <i class="bi bi-search"></i> Utenti</label>
+        <label for="filter" class="text-light mb-1"> 
+          <i class="bi bi-search mx-1" aria-hidden="true"></i> 
+          <span>Filtro utenti</span>
+        </label>
         <input type="text" 
                id="filter"
                class="form-control"
                placeholder="Username o email"
-               @input="app.filter_set($event)">
+               @input="app.filter_set($event)"
+               aria-label="Cerca utenti per username o email">
       </div>
   
       <div class="d-flex gap-2 align-items-center">
+        <label for="pag_select" class="sr-only">Righe per pagina</label>
         <select name="pag_select" id="pag_select"
-                class="btn btn-light"
-                @change="app.pag_select_set($event)">
+                class="btn btn-dark text-start"
+                @change="app.pag_select_set($event)"
+                aria-label="Seleziona numero di righe per pagina">
           <option v-for="value in app.pag_select_values" 
                   :value="value"
                   :selected="value === app.pag_limit"
@@ -431,20 +455,29 @@ Form.init();
         <nav aria-label="Page navigation" class="mt-3">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: app.pag_current === 1 }">
-              <button class="page-link" @click="app.pag_prev()" tabindex="-1">
-                <i class="bi bi-caret-left-fill"></i>
+              <button class="btn text-white" 
+                      @click="app.pag_prev()" 
+                      tabindex="-1" 
+                      aria-label="Pagina precedente">
+                <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
               </button>
             </li>
             
             <li v-for="page in app.pag_get_range()" 
                 class="page-item" 
                 :class="{ active: app.pag_current === page }">
-              <button class="page-link" @click="app.pag_current_set(page)">{{ page }}</button>
+              <button class="btn text-secondary" 
+                      @click="app.pag_current_set(page)" 
+                      :class="{ 'text-white': app.pag_current === page }"
+                      :aria-label="`Vai a pagina ${page}`"
+                      >{{ page }}</button>
             </li>
             
             <li class="page-item" :class="{ disabled: app.pag_current === app.pag_total() }">
-              <button class="page-link" @click="app.pag_next()">
-                <i class="bi bi-caret-right-fill"></i>
+              <button class="btn text-white" 
+                      @click="app.pag_next()" 
+                      aria-label="Pagina successiva">
+                <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
               </button>
             </li>
           </ul>
@@ -456,55 +489,79 @@ Form.init();
 
   
   <main v-if="!Form.isRendered">
-    <div v-if="usersStore.users.length === 0" 
-         class="alert alert-info">
+    <div v-if="filteredUsers.length === 0" 
+         class="alert alert-info"
+         role="alert"
+         aria-live="polite">
       Nessun utente disponibile.
     </div>
     
-    <div v-else class="table-responsive">
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th v-for="col in app.columns"> 
-              <button class="btn btn-light w-100 position-relative text-start"
-                      @click="app.sort_set(col.key)">
-                <span>{{ col.label }}</span>
-                <i v-if="app.sort_value[col.key] === 'asc'" 
-                  class="bi bi-caret-down-fill position-absolute top-50 end-0 translate-middle"></i>
-                <i v-if="app.sort_value[col.key] === 'desc'" 
-                  class="bi bi-caret-up-fill position-absolute top-50 end-0 translate-middle"></i>
-              </button> 
-            </th>
-            <th class="py-3">Azioni</th>
-          </tr>
-        </thead>
-        
-        <tbody>
-          <tr v-for="user in filteredUsers" :key="user.id">
-            <td v-for="col in app.columns">
-              <select v-if="col.key === 'role'"
-                      :value="user[col.key as keyof User]"
-                      @change="app.handleEdit(user, col.key, $event)"
-                      class="form-control">
-                <option value="0">Admin</option>
-                <option value="1">User</option>
-                <option value="2">Guest</option>
-              </select>
-              <input v-else
-                     type="text"
-                     :value="user[col.key as keyof User]"
-                     @change="app.handleEdit(user, col.key, $event)"
-                     class="form-control">
-            </td>
-            <td>
-              <button @click="app.handleDelete(user)" 
-                      class="btn btn-danger bi bi-trash"></button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else class="border rounded shadow">
+      <div class="table-responsive">
+        <table class="m-0 table table-dark table-striped table-hover">
+          <thead>
+            <tr>
+              <th v-for="col in app.columns" scope="col"> 
+                <button class="btn btn-dark d-flex justify-content-between w-100 min-w-100px"
+                        @click="app.sort_set(col.key)"
+                        :aria-label="`Ordina per ${col.label}. Attuale: ${app.sort_value[col.key] || 'nessuno'}`">
+                  <span>{{ col.label }}</span>
+                  <i v-if="app.sort_value[col.key] === 'asc'" 
+                    class="bi bi-caret-down-fill" 
+                    aria-hidden="true"></i>
+                  <i v-if="app.sort_value[col.key] === 'desc'" 
+                    class="bi bi-caret-up-fill" 
+                    aria-hidden="true"></i>
+                </button> 
+              </th>
+              <th class="py-3" scope="col">Azioni</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <tr v-for="user in filteredUsers" :key="user.id">
+              <td v-for="col in app.columns">
+                <select v-if="col.key === 'role'"
+                        :value="user[col.key as keyof User]"
+                        @change="app.handleEdit(user, col.key, $event)"
+                        class="form-control bg-dark"
+                        :aria-label="`Ruolo di ${user.username}`">
+                  <option value="0">Admin</option>
+                  <option value="1">User</option>
+                  <option value="2">Guest</option>
+                </select>
+                <input v-else
+                       type="text"
+                       :placeholder="'Aggiungi '+ col.label"
+                       :value="user[col.key as keyof User]"
+                       @change="app.handleEdit(user, col.key, $event)"
+                       class="form-control bg-dark"
+                       :aria-label="`${col.label} di ${user.username}`">
+              </td>
+              <td>
+                <button @click="app.handleDelete(user)" 
+                        class="btn btn-danger bi bi-trash"
+                        :aria-label="`Elimina utente ${user.username}`"></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
 </article> </template>
 
+<style scoped>
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+</style>
