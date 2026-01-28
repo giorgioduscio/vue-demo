@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
+import customStyle from './tools/styles';
+
+onMounted(()=>{
+  customStyle();
+})
 </script>
 
 <template>
@@ -28,11 +34,16 @@ import { RouterLink, RouterView } from 'vue-router';
           <li class="nav-item">
             <RouterLink class="nav-link" to="/contact">Contact</RouterLink>
           </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/users">Users</RouterLink>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
-  <div class="container mt-4">
+
+  <div>
     <RouterView />
   </div>
+
 </template>
