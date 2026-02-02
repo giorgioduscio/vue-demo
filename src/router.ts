@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { nextTick } from 'vue';
-import UsersPage from './views/UsersPage.vue';
-import AuthPage from './views/AuthPage.vue';
+import UsersPage from './pages/UsersPage.vue';
+import AuthPage from './pages/AuthPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
