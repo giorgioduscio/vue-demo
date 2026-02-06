@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { useUsersStore } from '../stores/usersStore';
+import { useAuthStore } from '../stores/AuthStore';
 import { reactive, computed, watch, onMounted } from 'vue';
 import type { FormField } from '../interfaces/private';
 import { useRoute, useRouter } from 'vue-router';
 import usersFormFields from './usersFormFields';
 import type { User } from '../interfaces/api';
 import { toast } from '../tools/feedbackUI';
+import { useUsersStore } from '../stores/usersStore';
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 const usersStore = useUsersStore();
 
 // 1. Determina la modalità corrente basandosi sul percorso
@@ -16,9 +18,9 @@ const isRegisterPage = computed(() => route.path === '/register');
 
 // 2. Imposta dinamicamente titolo e link alternativo
 const pageTitle = computed(() => isRegisterPage.value ? 'Registrazione' : 'Accesso');
-const linkText = computed(() => isRegisterPage.value ? 'Hai già un account?' : 'Non hai un account?');
-const linkTo = computed(() => isRegisterPage.value ? '/access' : '/register');
-const linkToText = computed(() => isRegisterPage.value ? 'Accedi' : 'Registrati');
+const switch_text = computed(() => isRegisterPage.value ? 'Hai già un account?' : 'Non hai un account?');
+const switch_path = computed(() => isRegisterPage.value ? '/access' : '/register');
+const switch_linkName = computed(() => isRegisterPage.value ? 'Accedi' : 'Registrati');
 const buttonText = computed(() => isRegisterPage.value ? 'Registrati' : 'Accedi');
 
 
@@ -82,6 +84,7 @@ const Form = reactive({
 
       usersStore.addUser(newUser).then(() => {
         router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
+        toast("Registrazione effettuata con successo", "success");
       });
 
     //  ACCESSO
@@ -89,7 +92,7 @@ const Form = reactive({
       const email = this.value.find((field) => field.key === 'email')?.value ||'';
       const password = this.value.find((field) => field.key === 'password')?.value ||'';
 
-      usersStore.login(email as string, password as string).then((res) => {
+      authStore.login(email as string, password as string).then((res) => {
         if(!res) return toast("Nessun account corrispondente", "danger");
         toast("Accesso effettuato con successo", "success");
         router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
@@ -125,20 +128,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <article class="container">
-    <form class="text-white"
+  <article class="container mt-2 p-3">
+    <form class="text-white mx-auto max-w-400px"
           @submit="Form.onsubmit($event)"
           aria-labelledby="form-title">
       <h2 id="form-title" class="my-3 d-flex justify-content-between">
         <span>{{ pageTitle }}</span>
       </h2>
-      <!-- MESSAGGIO -->
+      <!-- ALERT -->
       <div class="alert alert-info" aria-live="polite">
         I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori
       </div>
 
-      <div class="row">
-        <div v-for="field in Form.value" class="col-12 col-sm-6 col-md-4 col-lg-3 py-2">
+      <div class="d-flex flex-wrap gap-2 align-items-start">
+        <div v-for="field in Form.value" style="flex: 1 0 190px">
           <label :for="field.key" class="mb-2">
             <span>{{ field.label }}</span>
             <span v-if="field.asterisk" class="mx-1 text-danger" aria-hidden="true">*</span>
@@ -192,7 +195,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <p>{{ linkText }} <router-link :to="linkTo">{{ linkToText }}</router-link></p>
+      <p class="my-2">{{ switch_text }} <router-link :to="switch_path">{{ switch_linkName }}</router-link></p>
 
       <div class="d-flex gap-2 mt-3">
         <button :disabled="Form.submittedOnce && !Form.isvalid()"

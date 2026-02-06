@@ -5,3 +5,4 @@
 - npx playwright test src/app/tests/list.test.ts
 
 # Applicazione
+- guardie

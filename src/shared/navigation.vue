@@ -2,6 +2,7 @@
 import { RouterLink, useRoute } from 'vue-router';
 import { computed } from 'vue';
 import router from '../router';
+import Profile from './profile.vue';
 
 const route = useRoute();
 
@@ -41,6 +42,7 @@ const isActive = (path: string) => {
             <RouterLink class="nav-link" :class="{ 'active': isActive(item.path).value }" :to="item.path">{{ item.name }}</RouterLink>
           </li>
         </ul>
+        <Profile />
       </div>
 
     </div>

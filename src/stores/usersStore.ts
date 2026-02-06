@@ -4,26 +4,24 @@ import { ref } from 'vue';
 import type { User } from '../interfaces/api';
 
 
-
 export const useUsersStore = defineStore('users', () => {
   const url = 'https://users-b9804-default-rtdb.europe-west1.firebasedatabase.app/users';
   const users = ref<User[]>([]);
-  
+  // Funzione per mappare i dati da Firebase
+  function firebaseMapper(data: { [key: string]: User }): User[] {
+    return Object.keys(data).map((key) => {
+      const user = data[key];
+      if(user) user.key = key;
+      return user;
+    })
+    .filter((user) => user !== undefined);
+  }
+
   return {
     users,
     
     // Funzione per ottenere gli utenti
-    async getUsers () {
-      // Funzione per mappare i dati da Firebase
-      function firebaseMapper(data: { [key: string]: User }): User[] {
-        return Object.keys(data).map((key) => {
-          const user = data[key];
-          if(user) user.key = key;
-          return user;
-        })
-        .filter((user) => user !== undefined);
-      }
-      
+    async getUsers() {
       try {
         const response = await axios.get<{ [key: string]: User }>(`${url}.json`);
         const mappedUsers = firebaseMapper(response.data);
@@ -33,9 +31,22 @@ export const useUsersStore = defineStore('users', () => {
         console.error('Errore nel recupero degli utenti:', error);
       }
     },
-    
+
+    async getUserById(key:string){
+      try{
+        const response = await axios.get<{ [key: string]: User }>(`${url}/${key}.json`);
+        let mappedUsers = response.data;
+        if(mappedUsers) (mappedUsers as any)['key'] = key;
+        console.log('mappedUsers', mappedUsers);
+        return mappedUsers;
+        
+      }catch(error){
+        console.error('Errore nel recupero dell utente:', error);
+      }
+    },
+
     // Funzione per aggiungere un utente
-    async addUser (user: User) {
+    async addUser(user: User) {
       try {
         await axios.post(`${url}.json`, user);
         await this.getUsers(); // Aggiorna la lista degli utenti
@@ -94,18 +105,6 @@ export const useUsersStore = defineStore('users', () => {
       } catch (error) {
         console.error('Errore nell\'aggiornamento dell\'utente con PATCH:', error);
       }
-    },
-
-    //  LOGIN
-    async login(email: string, password: string) : Promise<User | null> {
-      if (users.value.length === 0) {
-        await this.getUsers();
-      }
-      
-      const userMatch = users.value.find((u) => u.email === email && u.password === password);
-      if(!userMatch) console.error("Credenziali non trovate", email, password, userMatch);
-      
-      return userMatch || null;
     },
   };
 });

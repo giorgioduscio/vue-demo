@@ -191,149 +191,226 @@ const filteredUsers = computed<User[]>(() => {
 </script>
 
 <template>
-  <article class="container">
-    <!-- TABELLA -->
+  <main class="container" role="main">
+    <!-- Header con titolo e pulsante -->
     <header>
-      <div class="m-2 row align-items-end">
-        <h1 class="text-light col-12 col-md-3">{{ app.title }}</h1>
-        
-        <!-- PULSANTE -->
+      <div class="my-3 d-grid cols-1fr-auto align-items-center">
+        <h1 class="text-light" id="page-title">{{ app.title }}</h1>
         <div class="col-auto">
-          <router-link :to="{ name: 'Registrazione' }"
-                       class="btn btn-primary d-flex gap-2"
-                       aria-label="Aggiungi nuovo utente">
-            <i class="bi bi-plus-lg"></i>
+          <router-link
+            :to="{ name: 'Registrazione' }"
+            class="btn btn-primary d-flex gap-2"
+            aria-label="Aggiungi un nuovo utente alla lista"
+            title="Aggiungi utente"
+          >
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
             <span class="d-none d-md-inline">Aggiungi utente</span>
           </router-link>
         </div>
-
-        <!-- FILTRO -->
-        <div class="col-9 col-sm-5 col-md-4">
-          <label for="filter" class="text-light mb-1">
-            <i class="bi bi-search mx-1" aria-hidden="true"></i>
-            <span>Filtro utenti</span>
-          </label>
-          <input type="text"
-                 id="filter"
-                 class="form-control"
-                 placeholder="Username o email"
-                 @input="app.filter_set($event)"
-                 aria-label="Cerca utenti per username o email">
-        </div>
-
-        <!-- PAGINAZIONE -->
-        <div class="col-12 col-md-auto">
-          <div class="d-flex gap-2 align-items-center">
-            <label for="pag_select" class="sr-only">Righe per pagina</label>
-            <select name="pag_select" id="pag_select"
-                    class="btn btn-dark text-start"
-                    @change="app.pag_select_set($event)"
-                    aria-label="Seleziona numero di righe per pagina">
-              <option v-for="value in app.pag_select_values"
-                      :value="value"
-                      :selected="value === app.pag_limit">
-                {{ value }} righe
-              </option>
-            </select>
-
-            <nav aria-label="Page navigation" class="mt-3">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{ disabled: app.pag_current === 1 }">
-                  <button class="btn text-white"
-                          :disabled="app.pag_current === 1"
-                          @click="app.pag_prev()"
-                          aria-label="Pagina precedente">
-                    <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
-                  </button>
-                </li>
-
-                <li v-for="page in app.pag_get_range()"
-                    class="page-item"
-                    :class="{ active: app.pag_current === page }">
-                  <button class="btn text-secondary"
-                          @click="app.pag_current_set(page)"
-                          :class="{ 'text-white': app.pag_current === page }"
-                          :aria-label="`Vai a pagina ${page}`">
-                    {{ page }}
-                  </button>
-                </li>
-
-                <li class="page-item" :class="{ disabled: app.pag_current === app.pag_total() }">
-                  <button class="btn text-white"
-                          @click="app.pag_next()"
-                          aria-label="Pagina successiva">
-                    <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-
       </div>
     </header>
 
-    <main>
-      <div v-if="filteredUsers.length === 0"
-           class="alert alert-info"
-           role="alert"
-           aria-live="polite">
-        Nessun utente disponibile.
+    <!-- Sezione controlli: filtro e paginazione -->
+    <section
+      aria-labelledby="controls-heading"
+      class="my-3 d-flex flex-wrap gap-2 justify-content-between"
+      role="region"
+    >
+      <h2 id="controls-heading" class="sr-only">Controlli utenti</h2>
+
+      <!-- Filtro utenti -->
+      <div data-filter role="search">
+        <label for="filter" class="text-light mb-1">
+          <i class="bi bi-search mx-1" aria-hidden="true"></i>
+          <span>Filtro utenti</span>
+        </label>
+        <input
+          type="search"
+          id="filter"
+          class="form-control max-w-300px"
+          placeholder="Username o email"
+          @input="app.filter_set($event)"
+          aria-label="Cerca utenti per username o email"
+          aria-describedby="filter-help"
+        >
+        <div id="filter-help" class="sr-only">
+          Inserisci il nome utente o l'email per filtrare la lista.
+        </div>
+      </div>
+
+      <!-- Paginazione -->
+      <div data-pagination>
+        <div class="d-flex gap-2 align-items-center">
+          <label for="pag_select" class="sr-only">Seleziona righe per pagina</label>
+          <select
+            name="pag_select"
+            id="pag_select"
+            class="btn btn-dark text-start"
+            @change="app.pag_select_set($event)"
+            aria-label="Seleziona il numero di righe per pagina"
+          >
+            <option
+              v-for="value in app.pag_select_values"
+              :key="value"
+              :value="value"
+              :selected="value === app.pag_limit"
+            >
+              {{ value }} righe
+            </option>
+          </select>
+
+          <nav aria-label="Navigazione pagine utenti" role="navigation">
+            <ul class="pagination justify-content-center" role="list">
+              <li
+                class="page-item"
+                :class="{ disabled: app.pag_current === 1 }"
+                role="presentation"
+              >
+                <button
+                  class="btn text-white"
+                  @click="app.pag_prev()"
+                  aria-label="Vai alla pagina precedente"
+                  :aria-disabled="app.pag_current === 1"
+                >
+                  <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
+                </button>
+              </li>
+
+              <li
+                v-for="page in app.pag_get_range()"
+                :key="page"
+                class="page-item"
+                :class="{ active: app.pag_current === page }"
+                role="presentation"
+              >
+                <button
+                  class="btn text-secondary"
+                  @click="app.pag_current_set(page)"
+                  :class="{ 'text-white': app.pag_current === page }"
+                  :aria-label="`Vai alla pagina ${page}`"
+                  :aria-current="app.pag_current === page ? 'page' : undefined"
+                >
+                  {{ page }}
+                </button>
+              </li>
+
+              <li
+                class="page-item"
+                :class="{ disabled: app.pag_current === app.pag_total() }"
+                role="presentation"
+              >
+                <button
+                  class="btn text-white"
+                  @click="app.pag_next()"
+                  aria-label="Vai alla pagina successiva"
+                  :aria-disabled="app.pag_current === app.pag_total()"
+                >
+                  <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sezione tabella utenti -->
+    <section
+      aria-labelledby="users-table-heading"
+      role="region"
+      aria-live="polite"
+      data-table
+    >
+      <h2 id="users-table-heading" class="sr-only">Tabella utenti</h2>
+
+      <div
+        v-if="filteredUsers.length === 0"
+        class="alert alert-info"
+        role="alert"
+        aria-live="assertive"
+      >
+        <p>Nessun utente disponibile.</p>
+        <p class="sr-only">La lista utenti è vuota. Prova a modificare i filtri o aggiungi un nuovo utente.</p>
       </div>
 
       <div v-else class="border rounded shadow">
         <div class="table-responsive">
-          <table class="m-0 table table-dark table-striped table-hover">
+          <table
+            class="m-0 table table-dark table-striped table-hover"
+            aria-describedby="users-table-heading"
+          >
             <thead>
-              <tr>
-                <th v-for="col in app.columns" scope="col">
-                  <button class="btn btn-dark d-flex justify-content-between w-100 min-w-100px"
-                          @click="app.sort_set(col.key)"
-                          :aria-label="`Ordina per ${col.label}. Attuale: ${app.sort_value[col.key] || 'nessuno'}`">
+              <tr role="row">
+                <th
+                  v-for="col in app.columns"
+                  :key="col.key"
+                  scope="col"
+                  role="columnheader"
+                >
+                  <button
+                    class="btn btn-dark d-flex justify-content-between w-100 min-w-100px"
+                    @click="app.sort_set(col.key)"
+                    :aria-label="`Ordina per ${col.label}. Ordine attuale: ${app.sort_value[col.key] || 'nessuno'}`"
+                  >
                     <span>{{ col.label }}</span>
-                    <i v-if="app.sort_value[col.key] === 'asc'"
+                    <i
+                      v-if="app.sort_value[col.key] === 'asc'"
                       class="bi bi-caret-down-fill"
-                      aria-hidden="true"></i>
-                    <i v-if="app.sort_value[col.key] === 'desc'"
+                      aria-hidden="true"
+                    ></i>
+                    <i
+                      v-if="app.sort_value[col.key] === 'desc'"
                       class="bi bi-caret-up-fill"
-                      aria-hidden="true"></i>
+                      aria-hidden="true"
+                    ></i>
                   </button>
                 </th>
-                <th class="py-3" scope="col">Azioni</th>
+                <th class="py-3" scope="col" role="columnheader">Azioni</th>
               </tr>
             </thead>
 
             <tbody>
-              <tr v-for="user in filteredUsers" :key="user.id">
-                <td v-for="col in app.columns">
-                  <select v-if="col.key === 'role'"
-                          :value="user[col.key as keyof User]"
-                          @change="app.handleEdit(user, col.key, $event)"
-                          class="form-control bg-dark"
-                          :aria-label="`Ruolo di ${user.username}`">
+              <tr v-for="user in filteredUsers" :key="user.id" role="row">
+                <td
+                  v-for="col in app.columns"
+                  :key="col.key"
+                  role="cell"
+                  :aria-label="`${col.label} di ${user.username}`"
+                >
+                  <select
+                    v-if="col.key === 'role'"
+                    :value="user[col.key as keyof User]"
+                    @change="app.handleEdit(user, col.key, $event)"
+                    class="form-control bg-dark"
+                    :aria-label="`Ruolo di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                  >
                     <option value="0">Admin</option>
                     <option value="1">User</option>
                     <option value="2">Guest</option>
                   </select>
-                  <input v-else
-                         type="text"
-                         :placeholder="'Aggiungi '+ col.label"
-                         :value="user[col.key as keyof User]"
-                         @change="app.handleEdit(user, col.key, $event)"
-                         class="form-control bg-dark"
-                         :aria-label="`${col.label} di ${user.username}`">
+                  <input
+                    v-else
+                    type="text"
+                    :placeholder="'Aggiungi ' + col.label"
+                    :value="user[col.key as keyof User]"
+                    @change="app.handleEdit(user, col.key, $event)"
+                    class="form-control bg-dark"
+                    :aria-label="`${col.label} di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                  >
                 </td>
-                <td>
-                  <button @click="app.handleDelete(user)"
-                          class="btn btn-danger bi bi-trash"
-                          :aria-label="`Elimina utente ${user.username}`"></button>
+                <td role="cell">
+                  <button
+                    @click="app.handleDelete(user)"
+                    class="btn btn-danger bi bi-trash"
+                    :aria-label="`Elimina utente ${user.username}`"
+                    title="Elimina utente"
+                  ></button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </main>
-  </article>
+    </section>
+  </main>
 </template>
-
