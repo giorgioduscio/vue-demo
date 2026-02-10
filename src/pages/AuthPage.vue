@@ -145,7 +145,7 @@ onMounted(() => {
           <label :for="field.key" class="mb-2">
             <span>{{ field.label }}</span>
             <span v-if="field.asterisk" class="mx-1 text-danger" aria-hidden="true">*</span>
-            <span v-if="field.asterisk" class="sr-only">(obbligatorio)</span>
+            <span v-if="field.asterisk" class="visually-hidden">(obbligatorio)</span>
           </label>
 
           <!-- SELECT -->

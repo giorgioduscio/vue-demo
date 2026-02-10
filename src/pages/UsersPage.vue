@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import type { User } from '../interfaces/api';
 import { useUsersStore } from '../stores/usersStore';
+import { useAuthStore } from '../stores/AuthStore'; // Aggiunto
+import { useRoute } from 'vue-router'; // Aggiunto
 import { onMounted, reactive, computed } from 'vue';
 import { agree, toast } from '../tools/feedbackUI';
 import usersFormFields from './usersFormFields';
 
 const usersStore = useUsersStore();
+const authStore = useAuthStore(); 
+const route = useRoute(); 
 
 onMounted(async () => {
   await usersStore.getUsers();
@@ -79,6 +83,7 @@ const app = reactive({
   },
 
   async handleDelete(user: User) {
+    if (!can.value('delete')) return; // Aggiunto controllo permessi
     if (!await agree(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi", "danger")) return;
     usersStore.deleteUser(user.id).then(() => {
       toast("Utente rimosso", "success");
@@ -87,6 +92,7 @@ const app = reactive({
   },
 
   handleEdit(user: User, key: string, event: Event) {
+    if (!can.value('update')) return; // Aggiunto controllo permessi
     const { value, tagName, type } = event.target as HTMLInputElement | HTMLSelectElement;
     const newValue = type === 'number' || tagName === 'SELECT'
       ? parseInt(value)
@@ -188,10 +194,21 @@ const app = reactive({
 const filteredUsers = computed<User[]>(() => {
   return app.users_get();
 });
+
+// Proprietà calcolata per verificare i permessi
+const can = computed(() => (permission: string) => {
+  const authMeta = route.meta.auth as { roles: { [key: number]: string[] } } | undefined;
+  if (!authMeta || !authStore.loggedInUser) {
+    return false;
+  }
+  const userRole = authStore.loggedInUser.role;
+  const permissionsForRole = authMeta.roles[userRole];
+  return permissionsForRole && permissionsForRole.includes(permission);
+});
 </script>
 
 <template>
-  <main class="container" role="main">
+  <main class="container" role="main" v-if="can('read')">
     <!-- Header con titolo e pulsante -->
     <header>
       <div class="my-3 d-grid cols-1fr-auto align-items-center">
@@ -202,6 +219,7 @@ const filteredUsers = computed<User[]>(() => {
             class="btn btn-primary d-flex gap-2"
             aria-label="Aggiungi un nuovo utente alla lista"
             title="Aggiungi utente"
+            :disabled="!can('create')"
           >
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             <span class="d-none d-md-inline">Aggiungi utente</span>
@@ -216,7 +234,7 @@ const filteredUsers = computed<User[]>(() => {
       class="my-3 d-flex flex-wrap gap-2 justify-content-between"
       role="region"
     >
-      <h2 id="controls-heading" class="sr-only">Controlli utenti</h2>
+      <h2 id="controls-heading" class="visually-hidden">Controlli utenti</h2>
 
       <!-- Filtro utenti -->
       <div data-filter role="search">
@@ -233,7 +251,7 @@ const filteredUsers = computed<User[]>(() => {
           aria-label="Cerca utenti per username o email"
           aria-describedby="filter-help"
         >
-        <div id="filter-help" class="sr-only">
+        <div id="filter-help" class="visually-hidden">
           Inserisci il nome utente o l'email per filtrare la lista.
         </div>
       </div>
@@ -241,7 +259,7 @@ const filteredUsers = computed<User[]>(() => {
       <!-- Paginazione -->
       <div data-pagination>
         <div class="d-flex gap-2 align-items-center">
-          <label for="pag_select" class="sr-only">Seleziona righe per pagina</label>
+          <label for="pag_select" class="visually-hidden">Seleziona righe per pagina</label>
           <select
             name="pag_select"
             id="pag_select"
@@ -321,7 +339,7 @@ const filteredUsers = computed<User[]>(() => {
       aria-live="polite"
       data-table
     >
-      <h2 id="users-table-heading" class="sr-only">Tabella utenti</h2>
+      <h2 id="users-table-heading" class="visually-hidden">Tabella utenti</h2>
 
       <div
         v-if="filteredUsers.length === 0"
@@ -330,7 +348,7 @@ const filteredUsers = computed<User[]>(() => {
         aria-live="assertive"
       >
         <p>Nessun utente disponibile.</p>
-        <p class="sr-only">La lista utenti è vuota. Prova a modificare i filtri o aggiungi un nuovo utente.</p>
+        <p class="visually-hidden">La lista utenti è vuota. Prova a modificare i filtri o aggiungi un nuovo utente.</p>
       </div>
 
       <div v-else class="border rounded shadow">
@@ -383,6 +401,7 @@ const filteredUsers = computed<User[]>(() => {
                     @change="app.handleEdit(user, col.key, $event)"
                     class="form-control bg-dark"
                     :aria-label="`Ruolo di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                    :disabled="!can('update')"
                   >
                     <option value="0">Admin</option>
                     <option value="1">User</option>
@@ -396,6 +415,7 @@ const filteredUsers = computed<User[]>(() => {
                     @change="app.handleEdit(user, col.key, $event)"
                     class="form-control bg-dark"
                     :aria-label="`${col.label} di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                    :disabled="!can('update')"
                   >
                 </td>
                 <td role="cell">
@@ -404,6 +424,7 @@ const filteredUsers = computed<User[]>(() => {
                     class="btn btn-danger bi bi-trash"
                     :aria-label="`Elimina utente ${user.username}`"
                     title="Elimina utente"
+                    :disabled="!can('delete')"
                   ></button>
                 </td>
               </tr>
@@ -414,3 +435,4 @@ const filteredUsers = computed<User[]>(() => {
     </section>
   </main>
 </template>
+

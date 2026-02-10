@@ -1,5 +1,5 @@
 html, body {
-  --c1: #333;  
+  --c1: #212529;  
   --c2: #666;  
   --c3: #888;  
   --c4: #ccc;  
@@ -46,6 +46,9 @@ input.form-control:focus {
 
 *::placeholder {
   color: inherit !important;
+}
+button:disabled{
+  filter: grayscale(1);
 }
 
 /* MODIFICA CLASSI BOOTSTRAP */
@@ -124,15 +127,4 @@ a {
 .text-bg-c5 {
   background-color: var(--c5) !important;
   color: #000 !important;
-}
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }

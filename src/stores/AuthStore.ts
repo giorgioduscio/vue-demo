@@ -1,25 +1,59 @@
 import { defineStore } from 'pinia';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import type { User } from '../interfaces/api';
 import { toast } from '../tools/feedbackUI';
-import { useUsersStore } from './usersStore'; // Per ottenere i dati dell'utente completo
+import { useUsersStore } from './usersStore';
 
 
 export const useAuthStore = defineStore('auth', () => {
-  const usersStore = useUsersStore(); // Ottieni l'istanza di usersStore
-  // const TIMEOUT = 30 * 1000; // 30 secondi
+  const usersStore = useUsersStore();
   const TIMEOUT = 600 * 1000; // 10 minuti
 
-  // Carica l'utente dal local storage all'avvio dell'app
-  onMounted(async () => {
-    const storedUser = localStorage.getItem(localStorageKey);
-    if (!storedUser) return logout();
+  const loggedInUser = ref<User | null>(null);
+  const localStorageKey = 'loggedUser';
+  const isInitialized = ref(false); // Flag per tracciare l'inizializzazione
 
-    const { userId, loginTimestamp } = JSON.parse(storedUser);
-    if (new Date().getTime() < (loginTimestamp + TIMEOUT)) {
-      // Carica gli utenti se non sono già stati caricati per trovare l'utente completo
+  // TIMER  
+  const timer = {
+    logoutLabel: ref<number | null>(null),
+    start() {
+      if (timer.logoutLabel.value) {
+        clearTimeout(timer.logoutLabel.value);
+      }
+      const timerId = setTimeout(() => {
+        logout();
+      }, TIMEOUT);
+      timer.logoutLabel.value = timerId;
+    },
+    stop() {
+      if (timer.logoutLabel.value) {
+        clearTimeout(timer.logoutLabel.value);
+        timer.logoutLabel.value = null;
+      }
+    }
+  };
+
+  async function initializeAuth() {
+    if (isInitialized.value) return; // Evita di inizializzare più volte
+
+    const storedUser = localStorage.getItem(localStorageKey);
+    let userId: number | null = null;
+    let loginTimestamp: number | null = null;
+
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        userId = parsed.userId;
+        loginTimestamp = parsed.loginTimestamp;
+      } catch (e) {
+        console.error("Errore nel parsing di localStorage per l'utente loggato:", e);
+        localStorage.removeItem(localStorageKey); // Pulisci dati corrotti
+      }
+    }
+
+    if (userId !== null && loginTimestamp !== null && new Date().getTime() < (loginTimestamp + TIMEOUT)) {
       if (usersStore.users.length === 0) {
-        await usersStore.getUsers(); 
+        await usersStore.getUsers();
       }
       const user = usersStore.users.find(u => u.id === userId);
       if (user) {
@@ -28,67 +62,48 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem(localStorageKey, JSON.stringify({ userId: user.id, loginTimestamp: newLoginTimestamp }));
         timer.start();
       } else {
-        logout(); 
+        logout(); // Utente non trovato, logout
       }
+    } else if (userId !== null) { // Se c'era un ID ma la sessione è scaduta o corrotta
+      logout();
     }
-  });
-  
-  // TIMER  
-  const timer ={
-    logoutLabel: ref<string | null>(null),
-    // Inizia il timer di logout
-    start() {
-      if (timer.logoutLabel.value) {
-        clearTimeout(parseInt(timer.logoutLabel.value, 10));
-      }
-      const timerId = setTimeout(() => {
-        logout();
-      }, TIMEOUT);
-      timer.logoutLabel.value = timerId.toString();
-    }
+    isInitialized.value = true;
   }
 
-  // Logout
-  const loggedInUser = ref<User | null>(null);
-  const localStorageKey = 'loggedUser';
   function logout() {
+    timer.stop();
     loggedInUser.value = null;
     localStorage.removeItem(localStorageKey);
-    if (timer.logoutLabel.value) {
-      clearTimeout(parseInt(timer.logoutLabel.value, 10));
-      timer.logoutLabel.value = null;
-    }
     toast('Logout eseguito.', "danger");
-  };
+    location.reload();
+    // isInitialized.value = false; // Reset per un'eventuale nuova inizializzazione
+  }
 
-  // Funzione di login
-  async function login(email: string, password: string) : Promise<User | null> {
+  async function login(email: string, password: string): Promise<User | null> {
     if (usersStore.users.length === 0) {
-      await usersStore.getUsers(); 
+      await usersStore.getUsers();
     }
-    
+
     const userMatch = usersStore.users.find((u) => u.email === email && u.password === password);
-    if(!userMatch) {
-      console.error("Credenziali non trovate", email, password, userMatch);
+    if (!userMatch) {
+      console.error("Credenziali non trovate", email, password);
       loggedInUser.value = null;
       localStorage.removeItem(localStorageKey);
-      if (timer.logoutLabel.value) {
-        clearTimeout(parseInt(timer.logoutLabel.value, 10));
-        timer.logoutLabel.value = null;
-      }
-      
+      timer.stop();
     } else {
       loggedInUser.value = userMatch;
       const loginTimestamp = new Date().getTime();
       localStorage.setItem(localStorageKey, JSON.stringify({ userId: userMatch.id, loginTimestamp }));
       timer.start();
     }
-    
+
     return userMatch || null;
-  };
-  
+  }
+
   return {
     loggedInUser,
+    isInitialized,
+    initializeAuth,
     login,
     doLogout: logout,
   };

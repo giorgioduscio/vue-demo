@@ -24,7 +24,9 @@ const isActive = (path: string) => {
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-      <RouterLink class="navbar-brand" to="/">Vue Demo</RouterLink>
+      <RouterLink class="navbar-brand" to="/">
+        <img src="../assets/vue.svg" alt="Vue-demo" style="height: 30px; width: auto;">
+      </RouterLink>
       
       <button class="navbar-toggler"
               type="button"
