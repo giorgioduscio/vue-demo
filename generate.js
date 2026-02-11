@@ -96,16 +96,40 @@ export const use{{storeName}}Store = defineStore('{{storeNameLowercase}}', {
     extension: '.ts',
     nameFormat: (fileName) => `use${fileName}Store`,
   },
+  test: {
+    text: `import { test, expect } from 'playwright/test';
+
+test.describe('{{TestName}}', () => {
+  test('should navigate to the home page', async ({ page }) => {
+    await page.goto('/');
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveTitle(/Vite \\+ Vue/);
+
+    // You can add more test steps here
+  });
+});
+`,
+    extension: '.spec.js',
+    nameFormat: (fileName) => `${fileName}`,
+  },
 };
 
 // Ottieni gli argomenti dalla riga di comando
 const args = process.argv.slice(2);
-const command = args[0]; // 'comp' o 'store'
+const command = args[0]; // 'comp', 'store' o 'test'
 let targetPath = args[1]; // Percorso della cartella di destinazione
 
-// Aggiungi automaticamente 'src/' se non presente per i comandi 'comp' e 'store'
-if (command && (command === 'comp' || command === 'store') && targetPath && !targetPath.startsWith('src/')) {
-    targetPath = `src/${targetPath}`;
+// Aggiungi automaticamente il prefisso corretto se non presente
+if (targetPath) {
+    if (command === 'comp' || command === 'store') {
+        if (!targetPath.startsWith('src/') && !path.isAbsolute(targetPath)) {
+            targetPath = `src/${targetPath}`;
+        }
+    } else if (command === 'test') {
+        if (!targetPath.startsWith('src/tests/') && !path.isAbsolute(targetPath)) {
+            targetPath = `src/tests/${targetPath}`;
+        }
+    }
 }
 
 // Funzione per generare il nome del file
@@ -153,11 +177,14 @@ const generateFile = async () => {
     const finalFileName = nameFormat(command === 'store' ? storeNamePascal : fileName);
     const fileNameWithExtension = `${finalFileName}${extension}`;
 
-    // Sostituisci il placeholder {{storeName}} se presente
+    // Sostituisci i placeholder specifici per il comando
     let fileContent = text;
     if (command === 'store') {
       fileContent = fileContent.replace(/{{storeName}}/g, storeNamePascal);
-      fileContent = fileContent.replace(/{{storeNameLowercase}}/g, fileName);
+      fileContent = fileContent.replace(/{{storeNameLowercase}}/g, fileName.toLowerCase());
+    } else if (command === 'test') {
+      const testNamePascal = fileName.charAt(0).toUpperCase() + fileName.slice(1);
+      fileContent = fileContent.replace(/{{TestName}}/g, testNamePascal);
     }
 
     const filePath = path.join(dirPath, fileNameWithExtension);
