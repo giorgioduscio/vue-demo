@@ -1,105 +1,113 @@
 type ToastColor = "primary" | "secondary" | "danger" | "success";
 
 // Funzione di utilità per mantenere la sintassi originale
-export function toast(message: string, color?: ToastColor): void {
-  class ToastManager {
-    private static instance: ToastManager;
-    private toastPool: HTMLElement[] = [];
-    private readonly MAX_POOL_SIZE = 5;
-    private styleInjected = false;
-    private colors = {
-      primary: '#007bff',
-      secondary: '#6c757d',
-      danger: '#dc3545',
-      success: '#198754',
-    };
-  
-    // Costruttore privato per singleton
-    private constructor() {}
-  
-    // Metodo per ottenere l'istanza singleton
-    public static getInstance(): ToastManager {
-      if (!ToastManager.instance) {
-        ToastManager.instance = new ToastManager();
-      }
-      return ToastManager.instance;
-    }
-  
-    // Recupera un elemento dal pool o ne crea uno nuovo
-    private getToastElement(): HTMLElement {
-      return this.toastPool.pop() || document.createElement('div');
-    }
-  
-    // Rilascia un elemento nel pool
-    private releaseToastElement(el: HTMLElement): void {
-      if (this.toastPool.length < this.MAX_POOL_SIZE) {
-        el.className = 'toast-notification';
-        this.toastPool.push(el);
-      }
-    }
-  
-    // Inietta lo stile CSS se non già fatto
-    private injectStyle(): void {
-      if (!this.styleInjected) {
-        const style = document.createElement('style');
-        style.textContent = `
-          .toast-notification {
-            padding: 15px 20px;
-            margin: 0 auto;
-            min-width: 200px;
-            max-width: 500px;
-            z-index: 10;
-            
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            
-            transition: opacity 0.3s ease;
-            opacity: 1;
-            white-space: nowrap;
-            background-color: ${this.colors.secondary};
-            color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            font-size: 14px;
-            text-align: center;
-          }
-          .toast-notification.fade-out {
-            opacity: 0;
-          }
-        `;
-        document.head.appendChild(style);
-        this.styleInjected = true;
-      }
-    }
-  
-    // Mostra un toast
-    public show(message: string, color: ToastColor = "secondary"): void {
-      this.injectStyle();
-  
-      const notificaEl = this.getToastElement();
-      notificaEl.className = 'toast-notification';
-      notificaEl.style.backgroundColor = this.colors[color];
-      notificaEl.textContent = message;
-  
-      document.body.appendChild(notificaEl);
-  
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          notificaEl.classList.add('fade-out');
-          setTimeout(() => {
-            if (notificaEl.parentNode) {
-              document.body.removeChild(notificaEl);
-            }
-            this.releaseToastElement(notificaEl);
-          }, 300);
-        }, 2000);
-      });
-    }
-  }
+export const Toast ={
+  log:(message:string)=> Toast._render(message, "secondary"),
+  primary:(message:string)=> Toast._render(message, "primary"),
+  secondary:(message:string)=> Toast._render(message, "secondary"),
+  danger:(message:string)=> Toast._render(message, "danger"),
+  success:(message:string)=> Toast._render(message, "success"),
 
-  ToastManager.getInstance().show(message, color);
+  _render(message: string, color?: ToastColor): void {
+    class ToastManager {
+      private static instance: ToastManager;
+      private toastPool: HTMLElement[] = [];
+      private readonly MAX_POOL_SIZE = 5;
+      private styleInjected = false;
+      private colors = {
+        primary: '#007bff',
+        secondary: '#6c757d',
+        danger: '#dc3545',
+        success: '#198754',
+      };
+    
+      // Costruttore privato per singleton
+      private constructor() {}
+    
+      // Metodo per ottenere l'istanza singleton
+      public static getInstance(): ToastManager {
+        if (!ToastManager.instance) {
+          ToastManager.instance = new ToastManager();
+        }
+        return ToastManager.instance;
+      }
+    
+      // Recupera un elemento dal pool o ne crea uno nuovo
+      private getToastElement(): HTMLElement {
+        return this.toastPool.pop() || document.createElement('div');
+      }
+    
+      // Rilascia un elemento nel pool
+      private releaseToastElement(el: HTMLElement): void {
+        if (this.toastPool.length < this.MAX_POOL_SIZE) {
+          el.className = 'toast-notification';
+          this.toastPool.push(el);
+        }
+      }
+    
+      // Inietta lo stile CSS se non già fatto
+      private injectStyle(): void {
+        if (!this.styleInjected) {
+          const style = document.createElement('style');
+          style.textContent = `
+            .toast-notification {
+              padding: 15px 20px;
+              margin: 0 auto;
+              min-width: 200px;
+              max-width: 500px;
+              z-index: 10;
+              
+              position: fixed;
+              top: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              
+              transition: opacity 0.3s ease;
+              opacity: 1;
+              white-space: nowrap;
+              background-color: ${this.colors.secondary};
+              color: #fff;
+              border-radius: 8px;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+              font-size: 14px;
+              text-align: center;
+            }
+            .toast-notification.fade-out {
+              opacity: 0;
+            }
+          `;
+          document.head.appendChild(style);
+          this.styleInjected = true;
+        }
+      }
+    
+      // Mostra un toast
+      public show(message: string, color: ToastColor = "secondary"): void {
+        this.injectStyle();
+    
+        const notificaEl = this.getToastElement();
+        notificaEl.className = 'toast-notification';
+        notificaEl.style.backgroundColor = this.colors[color];
+        notificaEl.textContent = message;
+    
+        document.body.appendChild(notificaEl);
+    
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            notificaEl.classList.add('fade-out');
+            setTimeout(() => {
+              if (notificaEl.parentNode) {
+                document.body.removeChild(notificaEl);
+              }
+              this.releaseToastElement(notificaEl);
+            }, 300);
+          }, 2000);
+        });
+      }
+    }
+  
+    ToastManager.getInstance().show(message, color);
+  }
 }
 
 

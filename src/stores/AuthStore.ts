@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { User } from '../interfaces/api';
-import { toast } from '../tools/feedbackUI';
+import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from './usersStore';
 
 
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     timer.stop();
     loggedInUser.value = null;
     localStorage.removeItem(localStorageKey);
-    toast('Logout eseguito.', "danger");
+    Toast.danger('Logout eseguito.');
     location.reload();
     // isInitialized.value = false; // Reset per un'eventuale nuova inizializzazione
   }

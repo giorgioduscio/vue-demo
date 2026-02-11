@@ -5,7 +5,7 @@ import type { User } from '../interfaces/api';
 
 
 export const useUsersStore = defineStore('users', () => {
-  const url = 'https://users-b9804-default-rtdb.europe-west1.firebasedatabase.app/users';
+  const url = import.meta.env.VITE_APP_API_URL+"/users";
   const users = ref<User[]>([]);
   // Funzione per mappare i dati da Firebase
   function firebaseMapper(data: { [key: string]: User }): User[] {

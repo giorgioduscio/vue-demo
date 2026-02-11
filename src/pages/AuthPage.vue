@@ -5,7 +5,7 @@ import type { FormField } from '../interfaces/private';
 import { useRoute, useRouter } from 'vue-router';
 import usersFormFields from './usersFormFields';
 import type { User } from '../interfaces/api';
-import { toast } from '../tools/feedbackUI';
+import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from '../stores/usersStore';
 
 const route = useRoute();
@@ -55,7 +55,7 @@ const Form = reactive({
   async onsubmit(e: Event) {
     e.preventDefault();
     this.submittedOnce = true;
-    if (!this.isvalid()) return toast('Form non valido', 'danger');
+    if (!this.isvalid()) return Toast.danger('Form non valido');
 
     //  REGISTRAZIONE
     if (isRegisterPage.value) {
@@ -84,7 +84,7 @@ const Form = reactive({
 
       usersStore.addUser(newUser).then(() => {
         router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
-        toast("Registrazione effettuata con successo", "success");
+        Toast.success("Registrazione effettuata con successo");
       });
 
     //  ACCESSO
@@ -93,8 +93,8 @@ const Form = reactive({
       const password = this.value.find((field) => field.key === 'password')?.value ||'';
 
       authStore.login(email as string, password as string).then((res) => {
-        if(!res) return toast("Nessun account corrispondente", "danger");
-        toast("Accesso effettuato con successo", "success");
+        if(!res) return Toast.danger("Nessun account corrispondente");
+        Toast.success("Accesso effettuato con successo");
         router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
       });
     }
@@ -136,8 +136,9 @@ onMounted(() => {
         <span>{{ pageTitle }}</span>
       </h2>
       <!-- ALERT -->
-      <div class="alert alert-info" aria-live="polite">
+      <div class="alert alert-info alert-dismissible fade show" role="alert">
         I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
 
       <div class="d-flex flex-wrap gap-2 align-items-start">

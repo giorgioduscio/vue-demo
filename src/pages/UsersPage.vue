@@ -4,7 +4,7 @@ import { useUsersStore } from '../stores/usersStore';
 import { useAuthStore } from '../stores/AuthStore'; // Aggiunto
 import { useRoute } from 'vue-router'; // Aggiunto
 import { onMounted, reactive, computed } from 'vue';
-import { agree, toast } from '../tools/feedbackUI';
+import { agree, Toast } from '../tools/feedbackUI';
 import usersFormFields from './usersFormFields';
 
 const usersStore = useUsersStore();
@@ -86,7 +86,7 @@ const app = reactive({
     if (!can.value('delete')) return; // Aggiunto controllo permessi
     if (!await agree(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi", "danger")) return;
     usersStore.deleteUser(user.id).then(() => {
-      toast("Utente rimosso", "success");
+      Toast.success("Utente rimosso");
       app.users = usersStore.users;
     });
   },
@@ -103,7 +103,7 @@ const app = reactive({
     if(!validationMatch) return console.error(`campo ${key} non trovato`);
     
     const isValid = validationMatch.validation ? validationMatch.validation(newValue) : true;
-    if (!isValid) return toast(`campo '${key}' non valido`, "danger");
+    if (!isValid) return Toast.danger(`campo '${key}' non valido`);
     
     const updatedUser = { ...user, [key]: newValue };
     if (updatedUser[key as keyof User] == user[key as keyof User])
@@ -111,7 +111,7 @@ const app = reactive({
     
     // aggiorna l'utente
     usersStore.updateUser(updatedUser).then(() => {
-      toast(`Campo '${key}' modificato`, "success");
+      Toast.success(`Campo '${key}' modificato`);
       app.users = usersStore.users;
     });
   },
@@ -333,22 +333,17 @@ const can = computed(() => (permission: string) => {
     </section>
 
     <!-- Sezione tabella utenti -->
-    <section
-      aria-labelledby="users-table-heading"
-      role="region"
-      aria-live="polite"
-      data-table
-    >
+    <section  aria-labelledby="users-table-heading"
+              role="region"
+              aria-live="polite">
       <h2 id="users-table-heading" class="visually-hidden">Tabella utenti</h2>
 
-      <div
-        v-if="filteredUsers.length === 0"
-        class="alert alert-info"
-        role="alert"
-        aria-live="assertive"
-      >
+      <div v-if="filteredUsers.length === 0" 
+           class="alert alert-info alert-dismissible fade show" 
+           role="alert" aria-live="assertive">
         <p>Nessun utente disponibile.</p>
         <p class="visually-hidden">La lista utenti è vuota. Prova a modificare i filtri o aggiungi un nuovo utente.</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
 
       <div v-else class="border rounded shadow">
