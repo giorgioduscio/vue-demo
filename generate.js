@@ -101,7 +101,12 @@ export const use{{storeName}}Store = defineStore('{{storeNameLowercase}}', {
 // Ottieni gli argomenti dalla riga di comando
 const args = process.argv.slice(2);
 const command = args[0]; // 'comp' o 'store'
-const targetPath = args[1]; // Percorso della cartella di destinazione
+let targetPath = args[1]; // Percorso della cartella di destinazione
+
+// Aggiungi automaticamente 'src/' se non presente per i comandi 'comp' e 'store'
+if (command && (command === 'comp' || command === 'store') && targetPath && !targetPath.startsWith('src/')) {
+    targetPath = `src/${targetPath}`;
+}
 
 // Funzione per generare il nome del file
 const generateFileName = (basePath) => {
@@ -118,36 +123,9 @@ const ensureDirectoryExistence = (filePath) => {
   }
 };
 
-// Funzione per chiedere conferma di sovrascrittura
-const confirmOverwrite = (filePath) => {
-  if (fs.existsSync(filePath)) {
-    const readline = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
 
-    return new Promise((resolve) => {
-      readline.question(
-        `Il file "${filePath}" esiste già. Sovrascriverlo? (s/n) `,
-        (answer) => {
-          readline.close();
-          resolve(answer.toLowerCase() === 's');
-        }
-      );
-    });
-  }
-  return Promise.resolve(true);
-};
 
-// Funzione per verificare se un percorso è valido
-const isValidPath = (filePath) => {
-  try {
-    fs.accessSync(path.dirname(filePath), fs.constants.W_OK);
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
+
 
 // Funzione principale
 const generateFile = async () => {
@@ -184,18 +162,9 @@ const generateFile = async () => {
 
     const filePath = path.join(dirPath, fileNameWithExtension);
 
-    // Verifica se il percorso è valido
-    if (!isValidPath(filePath)) {
-      console.error(`Impossibile scrivere nel percorso: ${filePath}`);
-      process.exit(1);
-    }
 
-    // Chiedi conferma per la sovrascrittura
-    const shouldOverwrite = await confirmOverwrite(filePath);
-    if (!shouldOverwrite) {
-      console.log('Operazione annullata.');
-      process.exit(0);
-    }
+
+
 
     // Crea la cartella se non esiste
     ensureDirectoryExistence(filePath);
