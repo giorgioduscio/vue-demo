@@ -34,11 +34,13 @@ import fs from 'fs';
 import path from 'path';
 import { createInterface } from 'readline';
 
-// Oggetto che contiene i template per i vari comandi
+// Oggetto che contiene i metodi per generare i template
 const sheet = {
   comp: {
-    text: `
-<script setup>
+    extension: '.vue',
+    nameFormat: (fileName) => `${fileName}`,
+    text: (fileName) => `
+<script setup lang="ts">
 // Importa dipendenze qui
 
 // Definisci props
@@ -64,21 +66,22 @@ const exampleFunction = () => {
 
 <template>
   <div>
-    <!-- Contenuto del componente -->
+    <!-- Contenuto del componente ${fileName} -->
   </div>
 </template>
 
 <style scoped>
-/* Stili specifici del componente */
+/* Stili specifici del componente ${fileName} */
 </style>
 `,
-    extension: '.vue',
-    nameFormat: (fileName) => `${fileName}`,
   },
   store: {
-    text: `import { defineStore } from 'pinia';
+    extension: '.ts',
+    nameFormat: (fileName) => `use${fileName}Store`,
+    text: (fileName) => `
+import { defineStore } from 'pinia';
 
-export const use{{storeName}}Store = defineStore('{{storeNameLowercase}}', {
+export const use${fileName}Store = defineStore('${fileName.toLowerCase()}', {
   state: () => ({
     // Stato iniziale
     // Esempio: count: 0
@@ -93,24 +96,23 @@ export const use{{storeName}}Store = defineStore('{{storeNameLowercase}}', {
   },
 });
 `,
-    extension: '.ts',
-    nameFormat: (fileName) => `use${fileName}Store`,
   },
   test: {
-    text: `import { test, expect } from 'playwright/test';
+    extension: '.spec.js',
+    nameFormat: (fileName) => `${fileName}`,
+    text: (fileName) => `
+import { test, expect } from 'playwright/test';
 
-test.describe('{{TestName}}', () => {
-  test('should navigate to the home page', async ({ page }) => {
+// Esegui il test con: npx playwright test src/tests/${fileName}.spec.js
+
+test.describe('${fileName.charAt(0).toUpperCase() + fileName.slice(1)}', () => {
+  test('should work as expected', async ({ page }) => {
+    // Esempio: vai alla pagina
     await page.goto('/');
-    // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Vite \\+ Vue/);
-
-    // You can add more test steps here
+    // Aggiungi qui la logica del test
   });
 });
 `,
-    extension: '.spec.js',
-    nameFormat: (fileName) => `${fileName}`,
   },
 };
 
@@ -121,22 +123,35 @@ let targetPath = args[1]; // Percorso della cartella di destinazione
 
 // Aggiungi automaticamente il prefisso corretto se non presente
 if (targetPath) {
-    if (command === 'comp' || command === 'store') {
-        if (!targetPath.startsWith('src/') && !path.isAbsolute(targetPath)) {
-            targetPath = `src/${targetPath}`;
-        }
-    } else if (command === 'test') {
-        if (!targetPath.startsWith('src/tests/') && !path.isAbsolute(targetPath)) {
-            targetPath = `src/tests/${targetPath}`;
-        }
+  if (command === 'comp') {
+    if (!targetPath.startsWith('src/') && !path.isAbsolute(targetPath)) {
+      targetPath = `src/${targetPath}`;
     }
+    
+  } else if (command === 'store') {
+    if (!targetPath.startsWith('src/') && !path.isAbsolute(targetPath)) {
+      targetPath = `src/${targetPath}`;
+    }
+
+  } else if (command === 'test') {
+    if (!targetPath.startsWith('src/tests/') && !path.isAbsolute(targetPath)) {
+      targetPath = `src/tests/${targetPath}`;
+    }
+  }
 }
 
 // Funzione per generare il nome del file
 const generateFileName = (basePath) => {
   const dirName = path.basename(basePath);
   // Sostituisci trattini e spazi con camelCase
-  return dirName.replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '');
+  return dirName
+    .split(/[-_\s]/)
+    .map((word, index) =>
+      index === 0
+        ? word.toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join('');
 };
 
 // Funzione per creare la cartella se non esiste
@@ -147,14 +162,35 @@ const ensureDirectoryExistence = (filePath) => {
   }
 };
 
+// Funzione per chiedere conferma di sovrascrittura
+const confirmOverwrite = async (filePath) => {
+  if (fs.existsSync(filePath)) {
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
 
-
-
+    return new Promise((resolve) => {
+      rl.question(
+        `Il file "${path.basename(filePath)}" esiste già. Sovrascriverlo? (s/n) `,
+        (answer) => {
+          rl.close();
+          resolve(answer.toLowerCase() === 's');
+        }
+      );
+    });
+  }
+  return true;
+};
 
 // Funzione principale
 const generateFile = async () => {
   if (!command || !targetPath) {
-    console.error('Utilizzo: ./generate [comp|store] [percorso/del/file]');
+    console.error('Utilizzo: ./generate.js [comp|store|test] [percorso/del/file]');
+    console.error('Esempi:');
+    console.error('  ./generate.js comp home');
+    console.error('  ./generate.js store auth');
+    console.error('  ./generate.js test home');
     process.exit(1);
   }
 
@@ -172,26 +208,21 @@ const generateFile = async () => {
 
     // Recupera le informazioni dal comando specificato
     const { text, extension, nameFormat } = sheet[command];
-    
+
     const storeNamePascal = fileName.charAt(0).toUpperCase() + fileName.slice(1);
     const finalFileName = nameFormat(command === 'store' ? storeNamePascal : fileName);
     const fileNameWithExtension = `${finalFileName}${extension}`;
-
-    // Sostituisci i placeholder specifici per il comando
-    let fileContent = text;
-    if (command === 'store') {
-      fileContent = fileContent.replace(/{{storeName}}/g, storeNamePascal);
-      fileContent = fileContent.replace(/{{storeNameLowercase}}/g, fileName.toLowerCase());
-    } else if (command === 'test') {
-      const testNamePascal = fileName.charAt(0).toUpperCase() + fileName.slice(1);
-      fileContent = fileContent.replace(/{{TestName}}/g, testNamePascal);
-    }
-
     const filePath = path.join(dirPath, fileNameWithExtension);
 
+    // Genera il contenuto del file usando il metodo text
+    const fileContent = text(fileName);
 
-
-
+    // Chiedi conferma se il file esiste già
+    const shouldOverwrite = await confirmOverwrite(filePath);
+    if (!shouldOverwrite) {
+      console.log('Operazione annullata.');
+      process.exit(0);
+    }
 
     // Crea la cartella se non esiste
     ensureDirectoryExistence(filePath);

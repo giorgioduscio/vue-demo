@@ -244,7 +244,7 @@ const can = computed(() => (permission: string) => {
         </label>
         <input
           type="search"
-          id="filter"
+          id="filter" name="filter"
           class="form-control max-w-300px"
           placeholder="Username o email"
           @input="app.filter_set($event)"
@@ -392,6 +392,8 @@ const can = computed(() => (permission: string) => {
                 >
                   <select
                     v-if="col.key === 'role'"
+                    :id="`role-${user.id}`"
+                    :name="`role-${user.id}`"
                     :value="user[col.key as keyof User]"
                     @change="app.handleEdit(user, col.key, $event)"
                     class="form-control bg-dark"
@@ -405,6 +407,8 @@ const can = computed(() => (permission: string) => {
                   <input
                     v-else
                     type="text"
+                    :id="`${col.key}-${user.id}`"
+                    :name="`${col.key}-${user.id}`"
                     :placeholder="'Aggiungi ' + col.label"
                     :value="user[col.key as keyof User]"
                     @change="app.handleEdit(user, col.key, $event)"

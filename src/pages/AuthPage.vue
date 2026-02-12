@@ -132,9 +132,9 @@ onMounted(() => {
     <form class="text-white mx-auto max-w-400px"
           @submit="Form.onsubmit($event)"
           aria-labelledby="form-title">
-      <h2 id="form-title" class="my-3 d-flex justify-content-between">
+      <h1 id="form-title" class="my-3 d-flex justify-content-between">
         <span>{{ pageTitle }}</span>
-      </h2>
+      </h1>
       <!-- ALERT -->
       <div class="alert alert-info alert-dismissible fade show" role="alert">
         I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori

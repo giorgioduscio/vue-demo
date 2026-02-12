@@ -1,5 +1,7 @@
 import { test, expect } from 'playwright/test';
 
+// terminale: npx playwright test src/app/tests/auth.spec.js
+
 // Dati comuni per i test
 const compilators =  [
   { key: 'username', value: 'test' },
