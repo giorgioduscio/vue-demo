@@ -1,0 +1,13 @@
+services:
+  vite-demo:
+    build: .
+    container_name: vite-demo
+    ports:
+      - "8080:8080"  # Porta di Vite
+    volumes:
+      - .:/app  # Monta la directory corrente in `/app`
+      - /app/node_modules  # Volume anonimo per node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    command: npm run dev  # Avvia Vite in modalità sviluppo

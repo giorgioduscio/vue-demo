@@ -83,8 +83,9 @@ const app = reactive({
   },
 
   async handleDelete(user: User) {
-    if (!can.value('delete')) return; // Aggiunto controllo permessi
+    if (!can.value('delete')) return Toast.danger("rimozione non autorizzata");
     if (!await agree(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi", "danger")) return;
+    
     usersStore.deleteUser(user.id).then(() => {
       Toast.success("Utente rimosso");
       app.users = usersStore.users;
@@ -92,7 +93,8 @@ const app = reactive({
   },
 
   handleEdit(user: User, key: string, event: Event) {
-    if (!can.value('update')) return; // Aggiunto controllo permessi
+    if (!can.value('update')) return console.error("utente non autorizzato");
+    ; 
     const { value, tagName, type } = event.target as HTMLInputElement | HTMLSelectElement;
     const newValue = type === 'number' || tagName === 'SELECT'
       ? parseInt(value)

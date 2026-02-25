@@ -1,7 +1,14 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue'; // Importa il plugin Vue
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
-})
+  plugins: [vue()], // Aggiungi il plugin Vue
+  server: {
+    watch: {
+      usePolling: true, // Abilita polling per Docker
+    },
+    host: true,
+    port: 8080,
+    strictPort: true,
+  },
+});
