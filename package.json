@@ -8,11 +8,11 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "_dev": "npm run build && npm run dev",
-    
+
+    "docker:build": "docker compose build --no-cache",
     "docker:up": "docker compose up --detach",
-    "docker:down": "docker compose down",
     "docker:logs": "docker compose logs --follow",
-    "docker:build:force": "docker compose build --no-cache",
+    "docker:down": "docker compose down --volumes",
     "docker:cleanup": "npm run docker:down && npm run docker:up && npm run docker:logs"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@vitejs/plugin-vue": "^6.0.4",
     "@vue/tsconfig": "^0.8.1",
     "playwright": "^1.58.2",
+    "pug": "^3.0.3",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
     "vue-tsc": "^3.1.4"

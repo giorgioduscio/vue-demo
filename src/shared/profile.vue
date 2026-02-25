@@ -16,30 +16,28 @@ const handleLogout = () => {
 </script>
 
 
-<template>
-  <div class="d-flex ms-auto">
-    <!--UTENTE LOGGATO-->
-    <div v-if="loggedInUser?.username" class="dropdown">
-      <a class="btn btn-secondary dropdown-toggle rounded" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ loggedInUser.username }}
-      </a>
-      <ul class="dropdown-menu" 
-          aria-labelledby="navbarDropdown">
-        <li>
-          <a  class="dropdown-item text-danger" 
-              href="#" 
-              @click.prevent="handleLogout">
-            <span class="bi bi-box-arrow-right me-1"></span>
-            <span>Logout</span>
-          </a>
-        </li>
-      </ul>
-    </div>
+<template lang="pug">
+.d-flex.ms-auto
+  //- UTENTE LOGGATO
+  .dropdown(v-if="loggedInUser?.username")
+    a#navbarDropdown.btn.btn-secondary.dropdown-toggle.rounded(
+      href="#"
+      role="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    ) {{ loggedInUser.username }}
+    
+    ul.dropdown-menu(aria-labelledby="navbarDropdown")
+      li
+        a.dropdown-item.text-danger(
+          href="#"
+          @click.prevent="handleLogout"
+        )
+          span.bi.bi-box-arrow-right.me-1
+          span Logout
 
-    <!--NESSUN UTENTE LOGGATO-->
-    <div v-else>
-      <RouterLink to="/register" class="btn btn-outline-light me-2">Registrati</RouterLink>
-      <RouterLink to="/access" class="btn btn-primary">Accedi</RouterLink>
-    </div>
-  </div>
+  //- NESSUN UTENTE LOGGATO
+  div(v-else)
+    RouterLink.btn.btn-outline-light.me-2(to="/register") Registrati
+    RouterLink.btn.btn-primary(to="/access") Accedi
 </template>
