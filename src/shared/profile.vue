@@ -1,18 +1,5 @@
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useAuthStore } from '../stores/AuthStore';
-import { RouterLink } from 'vue-router';
-
-const authStore = useAuthStore();
-
-const loggedInUser = computed(() => {
-  return authStore.loggedInUser;
-});
-
-const handleLogout = () => {
-  authStore.doLogout();
-};
 </script>
 
 

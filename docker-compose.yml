@@ -9,5 +9,8 @@ services:
       - /app/node_modules  # Volume anonimo per node_modules
     environment:
       - NODE_ENV=development
+      - VITE_APP_API_URL=${VITE_APP_API_URL}
+    env_file:
+      - .env.development
     restart: unless-stopped
     command: npm run dev  # Avvia Vite in modalità sviluppo

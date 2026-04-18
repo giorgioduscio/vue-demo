@@ -5,8 +5,16 @@ import type { User } from '../interfaces/api';
 
 
 export const useUsersStore = defineStore('users', () => {
-  const url = import.meta.env.VITE_APP_API_URL+"/users";
+  const apiUrl = import.meta.env.VITE_APP_API_URL;
+  
+  if (!apiUrl) {
+    console.error('ERRORE: VITE_APP_API_URL non definita nel file .env!');
+  }
+
+  const url = `${apiUrl}/users`;
   const users = ref<User[]>([]);
+  
+  console.log(`Mode: ${import.meta.env.MODE}`);
   // Funzione per mappare i dati da Firebase
   function firebaseMapper(data: { [key: string]: User }): User[] {
     return Object.keys(data).map((key) => {

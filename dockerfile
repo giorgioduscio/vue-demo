@@ -12,7 +12,11 @@ RUN npm install
 # Copia il resto del progetto
 COPY . .
 
-# Espone la porta (opzionale, ma utile per documentazione)
+# Argomenti per le variabili d'ambiente (utili per il build di produzione)
+ARG VITE_APP_API_URL
+ENV VITE_APP_API_URL=$VITE_APP_API_URL
+
+# Espone la porta
 EXPOSE 8080
 
 # Avvia il server Vite

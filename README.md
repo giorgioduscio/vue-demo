@@ -1,43 +1,35 @@
-# Application Startup
+# Vue 3 Enterprise Demo
 
-## Using Docker
+Questa è una Progressive Web Application (PWA) sviluppata come dimostrazione di architettura front-end professionale, focalizzata su scalabilità, performance e accessibilità (A11y).
 
-Run the following command in the terminal:
-```bash
-docker npm run docker:up # using Docker
-```
+## 🚀 Quick Start
 
-Go to http://localhost:8080
+### Con Docker (Consigliato)
+Il progetto è containerizzato per garantire coerenza tra gli ambienti.
+*   **Sviluppo:** `npm run docker:up` → [http://localhost:8080](http://localhost:8080)
+*   **Produzione:** `npm run docker:prod:up` → [http://localhost:8081](http://localhost:8081)
 
-## Local Usage
+### Locale
+1. `npm install`
+2. `npm run dev` → [http://localhost:8080](http://localhost:8080)
 
-Run the following command in the terminal:
-```bash
-npm run dev # using npm
-```
+## 🛠 Tech Stack & Architecture
+*   **Core:** Vue 3 (Composition API) + TypeScript
+*   **State Management:** Pinia (Store modulari con persistenza e logica di mapping)
+*   **Styling:** Bootstrap 5 + Custom CSS (Mobile First)
+*   **Infrastruttura:** Vite, Docker, Docker Compose
 
-Go to http://localhost:5173
+## 🏗️ Caratteristiche Enterprise (Best Practices)
+*   **Gestione Ambienti:** Architettura multi-ambiente con file `.env` differenziati per Development e Production.
+*   **Dockerization:** Configurazione Docker avanzata con iniezione di variabili d'ambiente in fase di build e runtime.
+*   **Performance:** Ottimizzazione del bundle tramite Vite e gestione efficiente dello stato con Pinia.
+*   **Robustness:** Sistema di mapping dei dati API (Firebase) e gestione centralizzata degli errori negli store.
+*   **Accessibilità (A11y):** Implementazione di standard ARIA, contrasti elevati e navigabilità da tastiera.
 
-# Docker Commands
+## 📋 Comandi Docker
+*   `npm run docker:build`: Ricostruisce le immagini (necessario dopo modifiche ai file .env).
+*   `npm run docker:logs`: Visualizza i log in tempo reale.
+*   `npm run docker:down` / `npm run docker:prod:down`: Arresta i servizi.
 
-* Start: `npm run docker:up`
-* Stop: `npm run docker:down`
-* Build: `npm run docker:build`
-* Logs: `npm run docker:logs`
-
-# Vue 3 + TypeScript + Vite
-
-This template should help you get started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs; check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
-
-## Enterprise-Level Best Practices
-
-This demo was developed with enterprise-level best practices for front-end development in mind, focusing on performance and accessibility. Key concepts applied include:
-
-- **State Management and UI:** Implementation of loading indicators and user feedback for a better experience.
-- **Robustness and Error Handling:** Specific error handling and robust client-side data validation.
-- **Configuration and Environments:** Use of environment variables for flexible configuration management.
-- **Accessibility (A11y):** Ensuring keyboard navigability, adequate color contrast, and alternative text for images.
-- **Performance:** Consideration for lazy loading and resource optimization.
-- **Testing:** Addition of unit and end-to-end tests to ensure code quality.
+---
+*Sviluppato con enfasi su manutenibilità e clean code.*

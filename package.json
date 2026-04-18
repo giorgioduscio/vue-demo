@@ -12,7 +12,10 @@
     "docker:up": "docker compose up --detach",
     "docker:logs": "docker compose logs --follow",
     "docker:down": "docker compose down --volumes",
-    "docker:cleanup": "npm run docker:down && npm run docker:up && npm run docker:logs"
+    "docker:cleanup": "npm run docker:down && npm run docker:up && npm run docker:logs",
+    
+    "docker:prod:up": "docker compose -f docker-compose.prod.yml up --build -d",
+    "docker:prod:down": "docker compose -f docker-compose.prod.yml down"
   },
   "dependencies": {
     "axios": "^1.13.3",
