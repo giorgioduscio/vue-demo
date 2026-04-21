@@ -1,4 +1,0 @@
-# scrivere: source ./alias
-alias generate="./scripts/generateFile.sh"
-alias dc="docker compose"
-alias exe="npm run"

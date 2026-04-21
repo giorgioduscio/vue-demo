@@ -84,7 +84,7 @@ const app = reactive({
 
   async handleDelete(user: User) {
     if (!can.value('delete')) return Toast.danger("rimozione non autorizzata");
-    if (!await agree(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi", "danger")) return;
+    if (!await agree.danger(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi")) return;
     
     usersStore.deleteUser(user.id).then(() => {
       Toast.success("Utente rimosso");
