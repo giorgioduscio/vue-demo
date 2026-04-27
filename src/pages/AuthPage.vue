@@ -27,6 +27,7 @@ const buttonText = computed(() => isRegisterPage.value ? 'Registrati' : 'Accedi'
 const Form = reactive({
   value: [] as FormField[],
   submittedOnce: false,
+  showPassword: false,
 
   // 3. Il metodo reset si adatta in base alla pagina
   reset() {
@@ -35,6 +36,7 @@ const Form = reactive({
       this.value = this.value.filter(field => field.key === 'email' || field.key === 'password');
     }
     this.submittedOnce = false;
+    this.showPassword = false;
   },
 
   onchange(e: Event) {
@@ -151,7 +153,7 @@ onMounted(() => {
 
           <!-- SELECT -->
           <select v-if="field.type === 'select'"
-                  class="form-control w-100"
+                  class="form-control w-100 bg-dark"
                   :class="{ 'is-invalid': Form.submittedOnce && !Form.isvalid(field.key) }"
                   :id="field.key"
                   :name="field.key"
@@ -176,15 +178,26 @@ onMounted(() => {
           </textarea>
 
           <!-- INPUT -->
-          <input v-else
-                 class="form-control w-100"
-                 :class="{ 'is-invalid': Form.submittedOnce && !Form.isvalid(field.key) }"
-                 :type="field.type"
-                 :id="field.key"
-                 :name="field.key"
-                 :value="field.value"
-                 :placeholder="field.placeholder || ''"
-                 @input="Form.onchange($event)">
+          <div v-else :class="{ 'input-group': field.key === 'password' }">
+            <input
+                   class="form-control"
+                   :class="{ 'is-invalid': Form.submittedOnce && !Form.isvalid(field.key) }"
+                   :type="field.key === 'password' && Form.showPassword ? 'text' : field.type"
+                   :id="field.key"
+                   :name="field.key"
+                   :value="field.value"
+                   :placeholder="field.placeholder || ''"
+                   @input="Form.onchange($event)">
+            
+            <button v-if="field.key === 'password'"
+                    class="btn btn-outline-light"
+                    :class="{ 'border-danger text-danger': Form.submittedOnce && !Form.isvalid(field.key) }"
+                    type="button"
+                    @click="Form.showPassword = !Form.showPassword"
+                    :aria-label="Form.showPassword ? 'Nascondi password' : 'Mostra password'">
+              <i class="bi" :class="Form.showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
 
           <!-- MESSAGGIO DI ERRORE -->
           <small v-if="Form.submittedOnce && !Form.isvalid(field.key)"

@@ -1,5 +1,18 @@
 
 <script setup lang="ts">
+import { useAuthStore } from '../stores/AuthStore';
+import { storeToRefs } from 'pinia';
+
+const authStore = useAuthStore();
+const { loggedInUser } = storeToRefs(authStore);
+
+/**
+ * Gestisce il logout dell'utente.
+ * Utilizzato nel template Pug.
+ */
+const handleLogout = () => {
+  authStore.doLogout();
+};
 </script>
 
 
@@ -18,7 +31,7 @@
       li
         a.dropdown-item.text-danger(
           href="#"
-          @click.prevent="handleLogout"
+          @click.prevent="()=>handleLogout()"
         )
           span.bi.bi-box-arrow-right.me-1
           span Logout
