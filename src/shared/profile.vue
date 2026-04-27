@@ -1,5 +1,5 @@
 
-<script setup lang="ts">
+<script setup>
 import { useAuthStore } from '../stores/AuthStore';
 import { storeToRefs } from 'pinia';
 

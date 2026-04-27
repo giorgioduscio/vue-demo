@@ -1,8 +1,8 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import { nextTick } from 'vue';
 import { authGuard } from './router/guards';
 
-const routes :RouteRecordRaw[] = [
+const routes = [
   {
     path: '/users',
     name: 'Users',
@@ -44,7 +44,7 @@ const router = createRouter({
 router.beforeEach(authGuard);
 router.afterEach((to) => {
   nextTick(() => {
-    document.title = (to.meta.title as string) || 'Vue Demo';
+    document.title = to.meta.title || 'Vue Demo';
   });
 });
 

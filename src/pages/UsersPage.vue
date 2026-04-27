@@ -1,8 +1,7 @@
-<script setup lang="ts">
-import type { User } from '../interfaces/api';
+<script setup>
 import { useUsersStore } from '../stores/usersStore';
-import { useAuthStore } from '../stores/AuthStore'; // Aggiunto
-import { useRoute } from 'vue-router'; // Aggiunto
+import { useAuthStore } from '../stores/AuthStore'; 
+import { useRoute } from 'vue-router'; 
 import { onMounted, reactive, computed } from 'vue';
 import { agree, Toast } from '../tools/feedbackUI';
 import usersFormFields from './usersFormFields';
@@ -26,7 +25,7 @@ const app = reactive({
     { key: "suggestion", label: "Suggerimento" },
   ],
 
-  getRole(role: number) {
+  getRole(role) {
     switch (role) {
       case 0:
         return "Admin";
@@ -39,7 +38,7 @@ const app = reactive({
     }
   },
 
-  users: [] as User[],
+  users: [],
 
   users_get() {
     let filteredUsers = this.users;
@@ -57,12 +56,12 @@ const app = reactive({
 
     if (this.sort_value) {
       const sortKey = Object.keys(this.sort_value)[0];
-      const sortDirection = this.sort_value[sortKey as keyof typeof this.sort_value];
+      const sortDirection = this.sort_value[sortKey];
 
       if (sortDirection) {
         paginatedUsers.sort((a, b) => {
-          const valueA = a[sortKey as keyof User];
-          const valueB = b[sortKey as keyof User];
+          const valueA = a[sortKey];
+          const valueB = b[sortKey];
 
           if (typeof valueA === "string" && typeof valueB === "string") {
             return sortDirection === "asc"
@@ -82,7 +81,7 @@ const app = reactive({
     return paginatedUsers;
   },
 
-  async handleDelete(user: User) {
+  async handleDelete(user) {
     if (!can.value('delete')) return Toast.danger("rimozione non autorizzata");
     if (!await agree.danger(`Vuoi rimuovere l'utente "${user.username}"?`, "Rimuovi")) return;
     
@@ -92,10 +91,10 @@ const app = reactive({
     });
   },
 
-  handleEdit(user: User, key: string, event: Event) {
+  handleEdit(user, key, event) {
     if (!can.value('update')) return console.error("utente non autorizzato");
-    ; 
-    const { value, tagName, type } = event.target as HTMLInputElement | HTMLSelectElement;
+    
+    const { value, tagName, type } = event.target;
     const newValue = type === 'number' || tagName === 'SELECT'
       ? parseInt(value)
       : value;
@@ -108,8 +107,6 @@ const app = reactive({
     if (!isValid) return Toast.danger(`campo '${key}' non valido`);
     
     const updatedUser = { ...user, [key]: newValue };
-    if (updatedUser[key as keyof User] == user[key as keyof User])
-      console.error(key, 'non risulta modificato');
     
     // aggiorna l'utente
     usersStore.updateUser(updatedUser).then(() => {
@@ -119,8 +116,8 @@ const app = reactive({
   },
 
   // ORDINAMENTO
-  sort_value: { username: "asc" } as { [key: string]: string | null },
-  sort_set(key: string) {
+  sort_value: { username: "asc" },
+  sort_set(key) {
     if (!this.sort_value[key]) {
       this.sort_value = { [key]: "asc" };
     } else if (this.sort_value[key] === "asc") {
@@ -132,21 +129,21 @@ const app = reactive({
 
   // FILTRO
   filter_value: "",
-  filter_set(event: Event) {
-    const newValue = (event.target as HTMLInputElement).value;
+  filter_set(event) {
+    const newValue = event.target.value;
     this.filter_value = newValue;
   },
 
   // PAGINAZIONE
   pag_select_values: [5, 10, 20, 50, 100],
   pag_limit: 10,
-  pag_select_set(event: Event) {
-    const newValue = (event.target as HTMLSelectElement).value;
+  pag_select_set(event) {
+    const newValue = event.target.value;
     this.pag_limit = parseInt(newValue);
     this.pag_current = 1;
   },
   pag_current: 1,
-  pag_current_set(current: number) {
+  pag_current_set(current) {
     this.pag_current = current;
   },
   pag_total() {
@@ -193,13 +190,13 @@ const app = reactive({
   },
 });
 
-const filteredUsers = computed<User[]>(() => {
+const filteredUsers = computed(() => {
   return app.users_get();
 });
 
 // Proprietà calcolata per verificare i permessi
-const can = computed(() => (permission: string) => {
-  const authMeta = route.meta.auth as { roles: { [key: number]: string[] } } | undefined;
+const can = computed(() => (permission) => {
+  const authMeta = route.meta.auth;
   if (!authMeta || !authStore.loggedInUser) {
     return false;
   }
@@ -221,7 +218,6 @@ const can = computed(() => (permission: string) => {
             class="btn btn-primary d-flex gap-2"
             aria-label="Aggiungi un nuovo utente alla lista"
             title="Aggiungi utente"
-            :disabled="!can('create')"
           >
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             <span class="d-none d-md-inline">Aggiungi utente</span>
@@ -396,10 +392,10 @@ const can = computed(() => (permission: string) => {
                     v-if="col.key === 'role'"
                     :id="`role-${user.id}`"
                     :name="`role-${user.id}`"
-                    :value="user[col.key as keyof User]"
+                    :value="user[col.key]"
                     @change="app.handleEdit(user, col.key, $event)"
                     class="form-control bg-dark"
-                    :aria-label="`Ruolo di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                    :aria-label="`Ruolo di ${user.username}, valore attuale: ${user[col.key]}`"
                     :disabled="!can('update')"
                   >
                     <option value="0">Admin</option>
@@ -412,10 +408,10 @@ const can = computed(() => (permission: string) => {
                     :id="`${col.key}-${user.id}`"
                     :name="`${col.key}-${user.id}`"
                     :placeholder="'Aggiungi ' + col.label"
-                    :value="user[col.key as keyof User]"
+                    :value="user[col.key]"
                     @change="app.handleEdit(user, col.key, $event)"
                     class="form-control bg-dark"
-                    :aria-label="`${col.label} di ${user.username}, valore attuale: ${user[col.key as keyof User]}`"
+                    :aria-label="`${col.label} di ${user.username}, valore attuale: ${user[col.key]}`"
                     :disabled="!can('update')"
                   >
                 </td>
@@ -436,4 +432,3 @@ const can = computed(() => (permission: string) => {
     </section>
   </main>
 </template>
-

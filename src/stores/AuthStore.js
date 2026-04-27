@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { User } from '../interfaces/api';
 import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from './usersStore';
 
@@ -9,13 +8,13 @@ export const useAuthStore = defineStore('auth', () => {
   const usersStore = useUsersStore();
   const TIMEOUT = 600 * 1000; // 10 minuti
 
-  const loggedInUser = ref<User | null>(null);
+  const loggedInUser = ref(null);
   const localStorageKey = 'loggedUser';
   const isInitialized = ref(false); // Flag per tracciare l'inizializzazione
 
   // TIMER  
   const timer = {
-    logoutLabel: ref<number | null>(null),
+    logoutLabel: ref(null),
     start() {
       if (timer.logoutLabel.value) {
         clearTimeout(timer.logoutLabel.value);
@@ -37,8 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (isInitialized.value) return; // Evita di inizializzare più volte
 
     const storedUser = localStorage.getItem(localStorageKey);
-    let userId: number | null = null;
-    let loginTimestamp: number | null = null;
+    let userId = null;
+    let loginTimestamp = null;
 
     if (storedUser) {
       try {
@@ -79,7 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
     // isInitialized.value = false; // Reset per un'eventuale nuova inizializzazione
   }
 
-  async function login(email: string, password: string): Promise<User | null> {
+  async function login(email, password) {
     if (usersStore.users.length === 0) {
       await usersStore.getUsers();
     }

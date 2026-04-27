@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { ref } from 'vue';
-import type { User } from '../interfaces/api';
-
 
 export const useUsersStore = defineStore('users', () => {
   const apiUrl = import.meta.env.VITE_APP_API_URL;
@@ -12,11 +10,11 @@ export const useUsersStore = defineStore('users', () => {
   }
 
   const url = `${apiUrl}/users`;
-  const users = ref<User[]>([]);
+  const users = ref([]);
   
   console.log(`Mode: ${import.meta.env.MODE}`);
   // Funzione per mappare i dati da Firebase
-  function firebaseMapper(data: { [key: string]: User }): User[] {
+  function firebaseMapper(data) {
     return Object.keys(data).map((key) => {
       const user = data[key];
       if(user) user.key = key;
@@ -31,7 +29,7 @@ export const useUsersStore = defineStore('users', () => {
     // Funzione per ottenere gli utenti
     async getUsers() {
       try {
-        const response = await axios.get<{ [key: string]: User }>(`${url}.json`);
+        const response = await axios.get(`${url}.json`);
         const mappedUsers = firebaseMapper(response.data);
         users.value = mappedUsers;
         // console.log('Utenti ottenuti:', users.value);
@@ -40,11 +38,11 @@ export const useUsersStore = defineStore('users', () => {
       }
     },
 
-    async getUserById(key:string){
+    async getUserById(key){
       try{
-        const response = await axios.get<{ [key: string]: User }>(`${url}/${key}.json`);
+        const response = await axios.get(`${url}/${key}.json`);
         let mappedUsers = response.data;
-        if(mappedUsers) (mappedUsers as any)['key'] = key;
+        if(mappedUsers) mappedUsers['key'] = key;
         console.log('mappedUsers', mappedUsers);
         return mappedUsers;
         
@@ -54,7 +52,7 @@ export const useUsersStore = defineStore('users', () => {
     },
 
     // Funzione per aggiungere un utente
-    async addUser(user: User) {
+    async addUser(user) {
       try {
         await axios.post(`${url}.json`, user);
         await this.getUsers(); // Aggiorna la lista degli utenti
@@ -65,7 +63,7 @@ export const useUsersStore = defineStore('users', () => {
     },
 
     // Funzione per eliminare un utente
-    async deleteUser (userId: number) {
+    async deleteUser (userId) {
       try {
         const userToDelete = users.value.find((u) => u.id === userId);
         if (!userToDelete || !userToDelete.key) {
@@ -82,7 +80,7 @@ export const useUsersStore = defineStore('users', () => {
     },
 
     // Funzione per aggiornare un utente
-    async patchUser (userId: number, user: User) {
+    async patchUser (userId, user) {
       try {
         const userToUpdate = users.value.find((u) => u.id === userId);
         if (!userToUpdate || !userToUpdate.key) {
@@ -99,7 +97,7 @@ export const useUsersStore = defineStore('users', () => {
     },
 
     // Funzione per aggiornare un utente con PATCH
-    async updateUser (updatedUser: User) {
+    async updateUser (updatedUser) {
       try {
         const userToUpdate = users.value.find((u) => u.id === updatedUser.id);
         if (!userToUpdate || !userToUpdate.key) {

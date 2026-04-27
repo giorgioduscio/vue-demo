@@ -1,10 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import { useAuthStore } from '../stores/AuthStore';
 import { reactive, computed, watch, onMounted } from 'vue';
-import type { FormField } from '../interfaces/private';
 import { useRoute, useRouter } from 'vue-router';
 import usersFormFields from './usersFormFields';
-import type { User } from '../interfaces/api';
 import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from '../stores/usersStore';
 
@@ -25,7 +23,7 @@ const buttonText = computed(() => isRegisterPage.value ? 'Registrati' : 'Accedi'
 
 
 const Form = reactive({
-  value: [] as FormField[],
+  value: [],
   submittedOnce: false,
   showPassword: false,
 
@@ -39,8 +37,8 @@ const Form = reactive({
     this.showPassword = false;
   },
 
-  onchange(e: Event) {
-    const target = e.target as HTMLInputElement | HTMLSelectElement;
+  onchange(e) {
+    const target = e.target;
     const fieldKey = target.name;
     const field = this.value.find(f => f.key === fieldKey);
     if (!field) return console.error(fieldKey, `non trovato`);
@@ -54,7 +52,7 @@ const Form = reactive({
     field.value = fieldValue;
   },
 
-  async onsubmit(e: Event) {
+  async onsubmit(e) {
     e.preventDefault();
     this.submittedOnce = true;
     if (!this.isvalid()) return Toast.danger('Form non valido');
@@ -62,7 +60,7 @@ const Form = reactive({
     //  REGISTRAZIONE
     if (isRegisterPage.value) {
       const randomNumber = Math.round(Math.random() * 100000);
-      let newUser: User = {
+      let newUser = {
         id: randomNumber,
         email: '',
         username: '',
@@ -75,7 +73,7 @@ const Form = reactive({
       let allFieldsValid = true;
       this.value.forEach((field) => {
         if (field.key in newUser) {
-          (newUser as any)[field.key] = field.value;
+          (newUser)[field.key] = field.value;
         } else {
           allFieldsValid = false;
           console.error(`Campo ${field.key} non trovato`);
@@ -94,7 +92,7 @@ const Form = reactive({
       const email = this.value.find((field) => field.key === 'email')?.value ||'';
       const password = this.value.find((field) => field.key === 'password')?.value ||'';
 
-      authStore.login(email as string, password as string).then((res) => {
+      authStore.login(email, password).then((res) => {
         if(!res) return Toast.danger("Nessun account corrispondente");
         Toast.success("Accesso effettuato con successo");
         router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
@@ -102,10 +100,10 @@ const Form = reactive({
     }
   },
 
-  isvalid(fieldKey?: string) {
-    function validateField(field: FormField) {
-      return !field.validation || field.validation(field.value);
-    }
+  isvalid(fieldKey) {
+    const validateField = (field) => {
+      return !field.validation || field.validation.call(field, field.value);
+    };
     if (!fieldKey) return this.value.every((field) => validateField(field));
 
     const fieldMatch = this.value.find((field) => field.key === fieldKey);
@@ -173,7 +171,7 @@ onMounted(() => {
                     :placeholder="field.placeholder || ''"
                     :id="field.key"
                     :name="field.key"
-                    :value="field.value as string || ''"
+                    :value="field.value || ''"
                     @input="Form.onchange($event)">
           </textarea>
 

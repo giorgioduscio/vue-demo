@@ -11,7 +11,7 @@ function injectDynamicStyles() {
   ];
 
   // Mappatura delle abbreviazioni alle proprietà CSS complete
-  const propertyMap: Record<string, string> = {
+  const propertyMap = {
     'w': 'width',
     'h': 'height',
     'max-w': 'max-width',
