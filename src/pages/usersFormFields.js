@@ -1,8 +1,9 @@
 import * as v from 'valibot';
 import { UsernameSchema, EmailSchema, PasswordSchema, RoleSchema } from '../tools/schemas';
+import { FormFieldSchema } from '../interfaces/interfaces';
 
 export default function usersFormFields() {
-  return [
+  const fields = [
     {
       type: 'text',
       key: 'username',
@@ -82,5 +83,15 @@ export default function usersFormFields() {
       value: '',
       placeholder: 'Es: Piatto preferito',
     }
-  ]
+  ];
+
+  // Validazione della struttura di ogni campo rispetto a FormFieldSchema
+  return fields.map(field => {
+    try {
+      return v.parse(FormFieldSchema, field);
+    } catch (e) {
+      console.error(`Struttura campo non valida per la chiave: ${field.key}`, e.issues);
+      return field;
+    }
+  });
 }

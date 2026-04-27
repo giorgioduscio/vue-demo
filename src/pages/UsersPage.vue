@@ -5,6 +5,10 @@ import { useRoute } from 'vue-router';
 import { onMounted, reactive, computed } from 'vue';
 import { agree, Toast } from '../tools/feedbackUI';
 import usersFormFields from './usersFormFields';
+import * as v from 'valibot';
+import { UserSchema } from '../interfaces/interfaces';
+
+/** @typedef {import('../interfaces/interfaces').User} User */
 
 const usersStore = useUsersStore();
 const authStore = useAuthStore(); 
@@ -38,6 +42,7 @@ const app = reactive({
     }
   },
 
+  /** @type {User[]} */
   users: [],
 
   users_get() {

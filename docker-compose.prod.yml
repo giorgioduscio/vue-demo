@@ -1,10 +1,10 @@
 services:
-  vite-demo-prod:
+  vue-demo-prod:
     build:
       context: .
       args:
         - VITE_APP_API_URL=${VITE_APP_API_URL}
-    container_name: vite-demo-prod
+    container_name: vue-demo-prod
     ports:
       - "8081:8080" # Porta 8081 per evitare conflitti con lo sviluppo (8080)
     env_file:

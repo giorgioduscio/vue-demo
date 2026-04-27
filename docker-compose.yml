@@ -1,7 +1,7 @@
 services:
-  vite-demo:
+  vue-demo:
     build: .
-    container_name: vite-demo
+    container_name: vue-demo
     ports:
       - "8080:8080"  # Porta di Vite
     volumes:
@@ -12,4 +12,4 @@ services:
     env_file:
       - .env.development
     restart: unless-stopped
-    command: npm run dev  # Avvia Vite in modalità sviluppo
+    command: sh -c "npm install && npm run dev"  # Installa dipendenze e avvia Vite

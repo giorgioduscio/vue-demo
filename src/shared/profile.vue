@@ -3,7 +3,10 @@
 import { useAuthStore } from '../stores/AuthStore';
 import { storeToRefs } from 'pinia';
 
+/** @typedef {import('../interfaces/interfaces').User} User */
+
 const authStore = useAuthStore();
+/** @type {{ loggedInUser: import('vue').Ref<User | null> }} */
 const { loggedInUser } = storeToRefs(authStore);
 
 /**

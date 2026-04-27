@@ -5,8 +5,11 @@ import { useRoute, useRouter } from 'vue-router';
 import usersFormFields from './usersFormFields';
 import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from '../stores/usersStore';
+import * as v from 'valibot';
+import { UserSchema } from '../interfaces/interfaces';
 
 const route = useRoute();
+// ... (resto del codice fino a onsubmit)
 const router = useRouter();
 const authStore = useAuthStore();
 const usersStore = useUsersStore();
@@ -82,10 +85,16 @@ const Form = reactive({
 
       if (!allFieldsValid) return console.error('Form non valido');
 
-      usersStore.addUser(newUser).then(() => {
-        router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
-        Toast.success("Registrazione effettuata con successo");
-      });
+      try {
+        const validatedUser = v.parse(UserSchema, newUser);
+        usersStore.addUser(validatedUser).then(() => {
+          router.push({ name: 'Users' }); // Reindirizza alla pagina degli utenti
+          Toast.success("Registrazione effettuata con successo");
+        });
+      } catch (error) {
+        console.error("Errore validazione utente:", error);
+        Toast.danger("Dati utente non validi.");
+      }
 
     //  ACCESSO
     } else {

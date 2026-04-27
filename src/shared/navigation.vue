@@ -18,7 +18,7 @@ const isActive = (path) => {
 
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary shadow-sm" role="navigation" aria-label="Navigazione principale">
-    <div class="container-fluid">
+    <div class="container">
       <RouterLink class="navbar-brand d-flex align-items-center gap-2" to="/" aria-label="Vai alla home di Vue-demo">
         <img src="../assets/vue.svg" alt="Vue-demo" style="height: 30px; width: auto;">
         <span class="fw-bold tracking-tight">Vue-demo</span>
