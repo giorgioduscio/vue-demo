@@ -1,6 +1,6 @@
 import { test, expect } from 'playwright/test';
 
-// terminale: npx playwright test src/app/tests/auth.spec.js
+// terminale: npx playwright test src/tests/auth.spec.js
 
 // Dati comuni per i test
 const compilators =  [
@@ -23,7 +23,7 @@ async function fillForm(page, fields) {
 
 test.describe('Auth', () => {
   test('Registrazione', async ({ page }) => {
-    await page.goto('http://localhost:5173/register');
+    await page.goto('/register');
 
     // Verifica che il form sia caricato
     await page.waitForSelector('form');
@@ -41,7 +41,7 @@ test.describe('Auth', () => {
   });
 
   test('Accesso', async ({ page }) => {
-    await page.goto('http://localhost:5173/access');
+    await page.goto('/access');
 
     // Verifica che il form sia caricato
     await page.waitForSelector('form');

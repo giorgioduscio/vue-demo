@@ -1,23 +1,29 @@
-# Usa Node.js 20 o 22
-FROM node:20-alpine
+# Usa Debian Slim invece di Alpine per compatibilità con Playwright
+FROM node:20-slim
 
 WORKDIR /app
 
-# Copia solo package.json e package-lock.json
+# Installa le dipendenze di sistema necessarie per Playwright
+# (Libnss3, libatk, libcups2, ecc. vengono gestite da playwright install-deps)
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia package.json e package-lock.json
 COPY package*.json ./
 
-# Installa dipendenze
+# Installa le dipendenze
 RUN npm install
+
+# Installa Chromium e le sue dipendenze specifiche di sistema
+RUN npx playwright install --with-deps chromium
 
 # Copia il resto del progetto
 COPY . .
 
-# Argomenti per le variabili d'ambiente (utili per il build di produzione)
-ARG VITE_APP_API_URL
-ENV VITE_APP_API_URL=$VITE_APP_API_URL
-
-# Espone la porta
+# Espone la porta di Vite
 EXPOSE 8080
 
-# Avvia il server Vite
+# Avvia Vite (npm install viene comunque eseguito all'avvio nel docker-compose)
 CMD ["npm", "run", "dev"]

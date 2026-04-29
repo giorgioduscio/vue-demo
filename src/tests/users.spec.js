@@ -1,5 +1,7 @@
 import { test, expect } from 'playwright/test';
 
+// terminale: npx playwright test src/tests/users.spec.js
+
 // --- Dati di Test e Variabili Globali ---
 // ID univoco per evitare conflitti nei dati di test
 const sectionId = Math.floor(Math.random() * 9999);
@@ -48,7 +50,7 @@ async function fillForm(page, fields) {
  */
 async function login(page) {
   // Naviga alla pagina di accesso
-  await page.goto('http://localhost:5173/access');
+  await page.goto('/access');
   console.log('\t', await page.locator('h1').textContent());
 
   // Attende che il form sia caricato
@@ -72,7 +74,7 @@ test.describe.serial('CRUD Utenti', () => {
     console.log('--- CREATE ---');
 
     // Naviga alla pagina di registrazione
-    await page.goto('http://localhost:5173/register');
+    await page.goto('/register');
     console.log('\t', await page.locator('h1').textContent());
 
     // Attende che il form sia caricato
@@ -89,7 +91,7 @@ test.describe.serial('CRUD Utenti', () => {
     expect(errorCount).toBe(0);
 
     // Verifica che venga visualizzata la notifica di successo
-    await expect(page.locator('.toast-notification')).toBeVisible();
+    await expect(page.locator('.toast-custom')).toBeVisible();
     console.log('\tRegistrazione completata con successo.');
   });
 
@@ -182,8 +184,8 @@ test.describe.serial('CRUD Utenti', () => {
     await deleteButton.click();
 
     // Conferma l'eliminazione
-    await page.waitForSelector('#agree-ok');
-    await page.click('#agree-ok');
+    await page.waitForSelector('#agree-confirm-btn');
+    await page.click('#agree-confirm-btn');
 
     // Verifica che l'utente non sia più visibile
     await expect(rows).toHaveCount(0);
