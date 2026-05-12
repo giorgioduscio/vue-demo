@@ -7,7 +7,7 @@ export const authGuard = (to, _from, next) => {
   // Se la rotta richiede autenticazione (es. la pagina Utenti)
   if (authMeta) {
     if (!authStore.loggedInUser) {
-      // Prova a recuperare dal localStorage se non è presente nello store
+      // Reactive a recuperare dal localStorage se non è presente nello store
       const storedUser = localStorage.getItem('loggedUser');
       if (!storedUser) {
         // REGOLA RICHIESTA: Se l'utente non è loggato, rimandalo alla Registrazione

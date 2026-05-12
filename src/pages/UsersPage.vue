@@ -345,7 +345,7 @@ const can = computed(() => (permission) => {
            class="alert alert-info alert-dismissible fade show" 
            role="alert" aria-live="assertive">
         <p>Nessun utente disponibile.</p>
-        <p class="visually-hidden">La lista utenti è vuota. Prova a modificare i filtri o aggiungi un nuovo utente.</p>
+        <p class="visually-hidden">La lista utenti è vuota. Reactive a modificare i filtri o aggiungi un nuovo utente.</p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
 

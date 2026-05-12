@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import './style.css'
+import './style.sass'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -7,10 +7,14 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 import { useAuthStore } from './stores/AuthStore' // Importa AuthStore
+import Alert from './shared/Alert.vue'
 
-async function initializeApp() { // Avvolgi in una funzione async
+async function initializeApp() { 
   const app = createApp(App);
   const pinia = createPinia();
+
+  // COMPONENTI RIUTILIZZABILI
+  app.component("Alert", Alert)
 
   app.use(pinia);
   

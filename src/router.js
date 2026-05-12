@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { nextTick } from 'vue';
 import { authGuard } from './router/guards';
+import { title } from 'valibot';
 
-const routes = [
-  {
+export const routes = [
+  { name: 'Users',
     path: '/users',
-    name: 'Users',
+    visible: true,
     component: () => import('./pages/UsersPage.vue'),
     meta: { 
-      title: 'Utenti', 
       auth:{
         roles: {
           0: ['read', 'create', 'update', 'delete'], // Admin
@@ -17,21 +17,37 @@ const routes = [
       }
     },
   },
-  {
+  { name: "Reactive",
+    path: "/reactive",
+    visible: true,
+    component: ()=> import('./pages/ReactivePage.vue'),
+  },
+
+  // AUTENTICAZIONE E AUTORIZZAZIONE
+  { name: 'Registrazione',
     path: '/register',
-    name: 'Registrazione',
     component: () => import('./pages/AuthPage.vue'),
-    meta: { title: 'Registrazione' },
   },
-  {
+  { name: 'Accesso',
     path: '/access',
-    name: 'Accesso',
     component: () => import('./pages/AuthPage.vue'),
-    meta: { title: 'Accesso' },
   },
-  {
-    path: '/',
-    redirect: '/users',
+  
+  // REDIRECT
+  { path: '/',
+    redirect: '/home',
+  },
+  { name: "Home",
+    path: "/home",
+    visible: true,
+    component: ()=> import('./pages/HomePage.vue'),
+  },
+  { path: '/:pathMatch(.*)*', 
+    redirect: '/not_found'
+  },
+  { name: 'Errore',
+    path: '/not_found',
+    component: () => import('./pages/NotFoundPage.vue'),
   },
 ];
 
@@ -44,7 +60,7 @@ const router = createRouter({
 router.beforeEach(authGuard);
 router.afterEach((to) => {
   nextTick(() => {
-    document.title = to.meta.title || 'Vue Demo';
+    document.title = to.name || 'Vue Demo';
   });
 });
 

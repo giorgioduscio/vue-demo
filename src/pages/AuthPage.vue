@@ -7,6 +7,7 @@ import { Toast } from '../tools/feedbackUI';
 import { useUsersStore } from '../stores/usersStore';
 import * as v from 'valibot';
 import { UserSchema } from '../interfaces/interfaces';
+import Alert from '../shared/Alert.vue';
 
 const route = useRoute();
 // ... (resto del codice fino a onsubmit)
@@ -144,11 +145,9 @@ onMounted(() => {
       <h1 id="form-title" class="my-3 d-flex justify-content-between">
         <span>{{ pageTitle }}</span>
       </h1>
-      <!-- ALERT -->
-      <div class="alert alert-info alert-dismissible fade show" role="alert">
-        I campi contrassegnati con <b class="text-danger">*</b> sono obbligatori
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+
+      <Alert title="Attenzione:" 
+            description="I campi contrassegnati da * sono obbligatori" />
 
       <div class="d-flex flex-wrap gap-2 align-items-start">
         <div v-for="field in Form.value" style="flex: 1 0 190px">
